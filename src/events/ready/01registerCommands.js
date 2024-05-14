@@ -27,7 +27,7 @@ module.exports = async (client) => {
 
         if (areCommandsDifferent(existingCommand, localCommand)) {
           await applicationCommands.edit(existingCommand.id, {
-            description,
+            description: description.substring(0, 100), // Limit the description to 100 characters
             options,
           });
 
@@ -43,7 +43,7 @@ module.exports = async (client) => {
 
         await applicationCommands.create({
           name,
-          description,
+          description: description.substring(0, 100), // Limit the description to 100 characters
           options,
         });
 
