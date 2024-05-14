@@ -1,6 +1,6 @@
 module.exports = {
     name: 'minecraft',
-    description: "The Owner's offical Minecraft server, Please Note that this command is only for the Bot's Main server",
+    description: "The Owner's offical Minecraft server, Only use in main server",
     testOnly:'true',
     deleted: false,
     callback: async (client, interaction) => {

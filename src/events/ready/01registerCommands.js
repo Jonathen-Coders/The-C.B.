@@ -14,6 +14,9 @@ module.exports = async (client) => {
     for (const localCommand of localCommands) {
       const { name, description, options } = localCommand;
 
+      if (description.length > 100) {
+        throw new Error(`The description for command "${name}" is too long! It must be 100 characters or less.`);
+      }
       const existingCommand = await applicationCommands.cache.find(
         (cmd) => cmd.name === name
       );
