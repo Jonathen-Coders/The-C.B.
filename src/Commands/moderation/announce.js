@@ -36,7 +36,7 @@ module.exports = {
         const description = interaction.options.getString('text');
         if (description.length > 100) {
             description = description.substring(0, 100); // Truncate to 100 characters
-        }
+        } else( interaction.reply('sorry please fix this your discription must be less than 100'));
         const embed = {
             color: 'BLUE',
             title: title,
