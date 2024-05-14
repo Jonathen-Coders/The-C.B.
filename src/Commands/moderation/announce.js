@@ -33,18 +33,18 @@ module.exports = {
         permissionsRequired: ['ADMINISTRATOR'],
         botPermissions: ['ADMINISTRATOR'],
         callback: async (client, interaction) => {
-            if (!interaction.member.permissions.has(PermissionFlagsBits.ADMINISTRATOR)) {
-                return interaction.reply({ content: `You don't have permission to create an announcement!`, ephemeral: true });
+            if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                return interaction.reply(`You don't have permission to create an announcement!`);
             }
             const ping = interaction.options.getBoolean('ping');
             const channel = interaction.options.getChannel('channel');
-            if (!channel.permissionsFor(client.user).has(PermissionFlagsBits.ADMINISTRATOR)) {
-                return interaction.reply({ content: `I don't have permission to post in this channel!`, ephemeral: true });
+            if (!channel.permissionsFor(client.user).has(PermissionFlagsBits.Administrator)) {
+                return interaction.reply(`I don't have permission to post in this channel!`);
             }
             const title = interaction.options.getString('title');
             const description = interaction.options.getString('text');
             if (description.length > 2048) {
-                return interaction.reply({ content: `The description is too long! It must be 2048 characters or less.`, ephemeral: true });
+                return interaction.reply(`The description is too long! It must be 2048 characters or less.`);
             }
             const embed = new EmbedBuilder()
             .setColor('#ff0000')
