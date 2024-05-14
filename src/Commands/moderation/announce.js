@@ -1,67 +1,47 @@
-const { ApplicationCommandOptionType, PermissionFlagsBits, PermissionsBitField, Permissions } = require('discord.js');
-const {MessageEmbed} = require('discord.js');
+const { ApplicationCommandOptionType, PermissionsBitField, EmbedBuilder, ChannelType, PermissionFlagsBits,} = require('discord.js');
 module.exports = {
     name: 'announce',
-    deleted:true,
-    description: 'Announce in any channel',
+    description: 'To announce in any channel',
+   deleted:true,
     options: [
         {
-            name: 'title',
-            description: 'The title of the announcement',
+            name:'title',
+            description:' The Title of the embed',
+            required: true,
             type: ApplicationCommandOptionType.String,
-            required: true,
         },
         {
-            name: 'text',
-            description: 'Description of the announcement',
-            type: ApplicationCommandOptionType.String, // Add missing type field
-            required: true,
+          name: 'text',
+          description: 'Description of the text you want to send.',
+          required: true,
+          type: ApplicationCommandOptionType.String,
         },
         {
-            name: 'channel',
-            description: 'The channel where you want to send the message',
-            type: ApplicationCommandOptionType.Channel, // Add missing type field
+            name:'channel',
+            description:'The channel you want to send the message in',
             required: true,
+            type: ApplicationCommandOptionType.Channel,
         },
-        {
-            name: 'ping',
-            description: 'Ping everyone',
-            type: ApplicationCommandOptionType.Boolean, // Add missing type field
-            required: true,
-        },
-
-    ],
-
-    permissionsRequired: ['ADMINISTRATOR'],
-    botPermissions: ['ADMINISTRATOR'],
+  
+    ],  
+    permissionsRequired: [PermissionFlagsBits.Administrator],
+    botPermissions: [PermissionFlagsBits.Administrator],
     callback: async (client, interaction) => {
-        if (!interaction.member.permissions.has(PermissionFlagsBits.ADMINISTRATOR)) {
-            return interaction.reply({ content: `You don't have permission to create an announcement!`, ephemeral: true });
-        }
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return await interaction.reply({ content: `You don't have the permissions to create an announcement!`, ephemeral: true});
         
         const channel = interaction.options.getChannel('channel');
-        if (!channel.permissionsFor(client.user).has(PermissionFlagsBits.ADMINISTRATOR)) {
-            return interaction.reply({ content: `I don't have permission to post in this channel!`, ephemeral: true });
-        }
         const title = interaction.options.getString('title');
         const description = interaction.options.getString('text');
-        const ping = interaction.options.getBoolean('ping');
-        const embed = new MessageEmbed()
-        .setColor('BLUE')
-        .setTitle(title)
-        .setDescription(description);
-            let content = '';
-            if (ping) {
-                content += '@everyone ';
-            }
-            
-        
-            try {
-                await channel.send({ content: content, embeds: [embed] });
-                await interaction.reply({ content: `👌 Successfully posted the announcement in #${channel.name}!`, ephemeral: true });
-            } catch (error) {
-                console.error(error);
-                await interaction.reply(`There was an issue posting the announcement in ${channel.name}!`);
-            }
-        },
-    }
+
+        const embed = new EmbedBuilder()
+        .setColor("Blue")
+        .setTitle(`${title}`)
+        .setDescription(`${description}`)
+
+        await channel.send({content:`||@everyone||`, embeds: [embed]}).catch(err => {
+            return interaction.reply(`I had a problem posting the announcement in ${channel}!`);
+        })
+        await interaction.reply({ content: `👌 I successfully posted the announcement in #${channel}!`, ephemeral: true});
+    },
+
+};
