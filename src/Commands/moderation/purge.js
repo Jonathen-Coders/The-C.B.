@@ -4,14 +4,8 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.j
 
 module.exports = {
     name: 'purge',
-    description: 'Delete a specified number of messages',
+    description: 'Delete a specified number of messages up to 100',
     options: [
-        {
-            name: 'amount',
-            description: 'The number of messages to delete',
-            type: ApplicationCommandOptionType.Integer,
-            required: true,
-        },
         {
             name: 'target',
             description: 'The target of the purge (user, bots, or all)',
@@ -32,6 +26,13 @@ module.exports = {
                 },
             ],
         },
+        {
+            name: 'amount',
+            description: 'The number of messages to delete',
+            type: ApplicationCommandOptionType.Integer,
+            required: true,
+        },
+        
     ],
     callback: async (client, interaction) => {
         // Check if the user has the required permissions
