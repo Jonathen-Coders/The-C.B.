@@ -7,7 +7,7 @@ const {
   
   module.exports = {
     deleted: false,
-    name: 'restart',
+    name: 'rs',
     description: 'Reboots!',
     devOnly: true,
     testOnly: false,
@@ -18,9 +18,10 @@ const {
     callback: async (client, interaction, ClientPresence) => {
      
       interaction.reply("⚠️Restarting...");
-      await  client.user.setPresence({
-        status: "invisible", // You can set it to online, idle, or other statuses
-        });
+      client.user.setPresence({
+        activities: [{ name: 'the Console for changes', type: ActivityType.Watching }],
+        status: 'dnd',
+    });
       setTimeout(async () => {
         await interaction.editReply('✅ the bot has been rebooted!').then(() => {
           client.destroy();
@@ -29,10 +30,7 @@ const {
       
         await client.login(process.env.TOKEN).catch((err) => console.log(err));
         console.log(`${client.user.tag} Ready`);
-        await  client.user.setPresence({
-          status: "online", // You can set it to online, idle, or other statuses
-          });
-      }, 5000);
+      }, 10000);
           
     },
   };
