@@ -1,6 +1,5 @@
 
-const { ApplicationCommandOptionType, Permissions } = require('discord.js');
-
+const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     name: 'nickname',
@@ -12,28 +11,45 @@ module.exports = {
             type: ApplicationCommandOptionType.String,
             required: true,
         },
-    ], // Add a comma here
-    async execute(interaction) {
-        // Check if the user has the necessary permissions
-        if (!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)) {
-            return interaction.reply('You do not have permission to change nicknames.');
-        }
-
-        // Get the new nickname from the command options
-        const newNickname = interaction.options.getString('nickname');
-
-        // Get the guilds where the nickname should be changed
-        const guild1 = interaction.guild;
-        const guild2 = interaction.client.guilds.cache.get('553403663205531678'); // Replace GUILD_ID_2 with the ID of the second guild
-
-        // Change the nickname in both guilds
+        {
+            name: 'user',
+            description: 'The user whose nickname to change',
+            type: ApplicationCommandOptionType.User,
+            required: true,
+        },
+    ],
+    callback: async (client, interaction) => {
         try {
-            await guild1.me.setNickname(newNickname);
-            await guild2.me.setNickname(newNickname);
-            interaction.reply(`Nickname changed to "${newNickname}" in both servers.`);
+            // Check if the user has the necessary permissions
+            if (!interaction.member.permissions.has(PermissionFlagsBits.ManageNicknames)) {
+                return interaction.reply('You do not have permission to change nicknames.');
+            }
+    
+            // Get the new nickname from the command options
+            const user = interaction.options.getMember('user');
+            const newNickname = interaction.options.getString('newnick');
+    
+            // Check if the user is the owner of the guild
+            if (user.id === interaction.guild.ownerId) {
+                return interaction.reply('I cannot change the nickname of the guild owner.');
+            }
+    
+            // Get the guilds where the nickname should be changed
+            const guild1 = interaction.guild;
+            const guild2 = client.guilds.cache.get('553403663205531678'); // Replace with the actual second guild ID
+    
+            // Fetch the user in both guilds
+            const member1 = await guild1.members.fetch(user);
+            const member2 = await guild2.members.fetch(user);
+    
+            // Change the nickname in both guilds
+            await member1.setNickname(newNickname);
+            await member2.setNickname(newNickname);
+    
+            interaction.reply(`Nickname changed to "${newNickname}" for ${user.tag} in both servers.`);
         } catch (error) {
             console.error(error);
             interaction.reply('An error occurred while changing the nickname.');
         }
-    },
+    }, // Add a closing curly brace here
 };
