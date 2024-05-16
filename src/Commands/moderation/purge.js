@@ -5,10 +5,7 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.j
 module.exports = {
     name: 'purge',
     description: 'Delete a specified number of messages up to 100',
-<<<<<<< HEAD
     deleted: false,
-=======
->>>>>>> ec11c95da94a0b422b0f6e337625de8172f80c43
     options: [
         {
             name: 'target',
