@@ -3,7 +3,7 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.j
 // Import the necessary Discord.js modules
 
 module.exports = {
-    name: 'purge',
+    name: 'bulkdelete',
     description: 'Delete a specified number of messages up to 100',
     deleted: false,
     options: [
