@@ -20,7 +20,7 @@ const {
       interaction.reply("⚠️Restarting...");
       client.user.setPresence({
         activities: [{ name: 'the Console for changes', type: ActivityType.Watching }],
-        status: 'dnd',
+        status: 'do not disturb',
     });
       setTimeout(async () => {
         await interaction.editReply('✅ the bot has been rebooted!').then(() => {
