@@ -42,16 +42,18 @@ module.exports = {
         }
 
         // Get the amount and target from the interaction options
-        const amount = interaction.options.getInteger('amount');
+        let amount = interaction.options.getInteger('amount');
         const target = interaction.options.getString('target');
-
+        // Send an initial response
+        await interaction.reply('Deleting messages...');
         // Check if the amount is a valid number
         if (isNaN(amount) || amount <= 0 || amount > 1000) {
             return interaction.reply('Please provide a valid number between 1 and 1000 for the amount.');
         }
 
          // Fetch and delete messages in batches of 100
-         while (amount > 0) {
+         let deletedMessages = 0;
+        while (amount > 0) {
             const fetchAmount = Math.min(amount, 100);
             let fetched;
             if (target === 'user') {
@@ -70,14 +72,15 @@ module.exports = {
                     interaction.reply(`An error occurred while deleting messages.${err}`);
                 });
 
-            amount -= fetchAmount;
+                deletedMessages += messagesToDelete.size;
+                amount -= fetchAmount;
         }
 
         // Send a success message
-        interaction.reply(`Successfully deleted ${amount} messages.`)
+        interaction.editReply(`Successfully deleted ${deletedMessages} messages.`)
             .then(msg => {
                 // Automatically delete the success message after 5 seconds
-                msg.delete({ timeout: 5000 });
+                msg.delete({ timeout: 10000 });
             });
     },
 };
