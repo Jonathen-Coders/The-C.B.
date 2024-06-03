@@ -3,6 +3,7 @@ const { ApplicationCommandOptionType, ActivityType } = require('discord.js');
 module.exports = {
     name: 'activity',
     description: 'Sets the bot\'s presence',
+    devonly: true,
     options: [
         {
             name: 'status',
@@ -63,7 +64,7 @@ module.exports = {
         try {
             // Check if the user has the necessary role
             const requiredRole = '• Bot Owner'; // Replace with the name of the role that should have access to this command
-            if (!interaction.member.roles.cache.some(role => role.name === requiredRole)) {
+            if (!interaction.member.roles.cache.some(role => role.name === requiredRole)|| !devonly) {
                 return interaction.reply('You do not have permission to use this command.');
             }
 
