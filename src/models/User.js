@@ -15,8 +15,21 @@ const userSchema = new Schema({
   },
   lastDaily: {
     type: Date,
-    reqired: true,
+    required: true,
   },
+  selectedJob: {
+    type: String, // Adjust the data type as needed (e.g., String, Enum, etc.)
+},
+jobPayouts: {
+  type: Map, // Use a Map to store job payouts
+  of: Number, // Payouts are numeric (coins)
+  default: new Map([
+    ['miner', 36], // Payout for mining job
+    ['builder', 25], // Payout for builder job
+    ['pizza_delivery', 20], // Payout for pizza delivery job
+    // Add other jobs as needed
+]), // Initialize as an empty object
+},
 });
 
 module.exports = model('User', userSchema);
