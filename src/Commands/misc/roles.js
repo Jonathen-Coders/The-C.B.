@@ -1,24 +1,26 @@
-const { ApplicationCommandOptionType, MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
+const { ApplicationCommandOptionType, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
+
 
 module.exports = {
     name: 'role',
-    deleted: true,//until the next update working in progress
+    deleted: false,//until the next update working in progress
+    testOnly: true,
     description: 'Select a role',
     options: [],
     callback: async (client, interaction) => {
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
             .addComponents(
-                new MessageButton()
+                new ButtonBuilder()
                     .setCustomId('role1')
                     .setLabel('BOT Updates')
-                    .setStyle('PRIMARY'),
-                new MessageButton()
+                    .setStyle('1'),
+                new ButtonBuilder()
                     .setCustomId('role2')
-                    .setLabel('Red')
-                    .setStyle('PRIMARY'),
+                    .setLabel('• Helper')
+                    .setStyle('1'),
             );
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor('#0099ff')
             .setTitle('Select a Role')
             .setDescription('Click a button to select a role.');
