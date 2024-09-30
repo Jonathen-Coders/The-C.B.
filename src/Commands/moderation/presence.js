@@ -63,8 +63,8 @@ module.exports = {
     callback: async (client, interaction) => {
         try {
             // Check if the user has the necessary role
-            const requiredRole = '• Bot Owner'; // Replace with the name of the role that should have access to this command
-            if (!interaction.member.roles.cache.some(role => role.name === requiredRole)|| !devonly) {
+            const requiredRole = 'Bot Owner'; // Replace with the name of the role that should have access to this command
+            if (!interaction.member.roles.cache.some(role => role.name === requiredRole)|| !this.devOnly) {
                 return interaction.reply('You do not have permission to use this command.');
             }
 
