@@ -3,7 +3,7 @@ const { ApplicationCommandOptionType, ActivityType } = require('discord.js');
 module.exports = {
     name: 'activity',
     description: 'Sets the bot\'s presence',
-    devonly: true,
+    devOnly: true,
     options: [
         {
             name: 'status',
