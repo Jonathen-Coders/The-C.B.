@@ -51,7 +51,7 @@ module.exports = {
                                 setTimeout(() => msg.delete(), 5000);
                             });
 
-                        // Start deleting messages slowly
+                        // Start deleting messages slowly in reverse order
                         deleteMessagesSlowly(targetChannel, messageIds);
                     }
                 } catch (err) {
@@ -63,17 +63,17 @@ module.exports = {
     },
 };
 
-// Function to delete messages slowly
+// Function to delete messages slowly in reverse order
 async function deleteMessagesSlowly(channel, messageIds) {
-    for (const messageId of messageIds) {
+    for (let i = messageIds.length - 1; i >= 0; i--) {
         setTimeout(async () => {
             try {
-                const message = await channel.messages.fetch(messageId);
+                const message = await channel.messages.fetch(messageIds[i]);
                 await message.delete();
-                console.log(`Deleted message: ${messageId}`);
+                console.log(`Deleted message: ${messageIds[i]}`);
             } catch (err) {
-                console.error(`Error deleting message ${messageId}:`, err);
+                console.error(`Error deleting message ${messageIds[i]}:`, err);
             }
-        }, 1000); // Delay of 1 second between deletions
+        }, (messageIds.length - i) * 1000); // Delay of 1 second between deletions
     }
 }
