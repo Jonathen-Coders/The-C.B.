@@ -50,23 +50,28 @@ module.exports = async (client, interaction) => {
     if (commandObject.botPermissions?.length) {
       if (interaction.guild) {
         const bot = interaction.guild.members.me;
-
-        if (bot) {
-          for (const permission of commandObject.botPermissions) {
-            if (!bot.permissions.has(permission)) {
-              interaction.reply({
-                content: "I don't have enough permissions.",
-                ephemeral: true,
-              });
-              return;
-            }
+        for (const permission of commandObject.botPermissions) {
+          if (!bot.permissions.has(permission)) {
+            interaction.reply({
+              content: 'I do not have enough permissions.',
+              ephemeral: true,
+            });
+            return;
           }
         }
       }
     }
 
-    await commandObject.callback(client, interaction);
+    // Execute the command
+    if (commandObject.execute) {
+      await commandObject.execute(interaction);
+    } else if (commandObject.callback) {
+      await commandObject.callback(interaction);
+    } else {
+      throw new Error('Command does not have an execute or callback function.');
+    }
   } catch (error) {
-    console.log(`There was an error running this command: ${error}`);
+    console.error(error);
+    await interaction.reply({ content: 'There was an error executing that command.', ephemeral: true });
   }
 };

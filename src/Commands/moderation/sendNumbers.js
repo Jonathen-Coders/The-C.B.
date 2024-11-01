@@ -2,7 +2,7 @@ const { ApplicationCommandOptionType, ActivityType } = require('discord.js');
 
 module.exports = {
     name: 'sendnumbers',
-    deleted: true,
+    deleted: false,
     description: 'Send 1000 messages with each message containing a unique number',
     options: [
         {

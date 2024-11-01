@@ -1,9 +1,8 @@
-
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     name: 'nickname',
-    description: 'Change nickname across two servers',
+    description: 'Change nickname across all servers where the bot and user are members',
     options: [
         {
             name: 'newnick',
@@ -24,32 +23,40 @@ module.exports = {
             if (!interaction.member.permissions.has(PermissionFlagsBits.ManageNicknames)) {
                 return interaction.reply('You do not have permission to change nicknames.');
             }
-    
+
             // Get the new nickname from the command options
             const user = interaction.options.getMember('user');
             const newNickname = interaction.options.getString('newnick');
-    
+
             // Check if the user is the owner of the guild
             if (user.id === interaction.guild.ownerId) {
                 return interaction.reply('I cannot change the nickname of the guild owner.');
             }
-    
-            // Get the guilds where the nickname should be changed
-            const guild1 = interaction.guild;
-            const guild2 = client.guilds.cache.get('553403663205531678'); // Replace with the actual second guild ID
-    
-            // Fetch the user in both guilds
-            const member1 = await guild1.members.fetch(user);
-            const member2 = await guild2.members.fetch(user);
-    
-            // Change the nickname in both guilds
-            await member1.setNickname(newNickname);
-            await member2.setNickname(newNickname);
-    
-            interaction.reply(`Nickname changed to "${newNickname}" for ${user.tag} in both servers.`);
+
+            // Iterate over all guilds the bot is in
+            const promises = client.guilds.cache.map(async (guild) => {
+                try {
+                    // Fetch the member in the guild
+                    const member = await guild.members.fetch(user.id);
+                    if (member) {
+                        // Change the nickname in the guild
+                        await member.setNickname(newNickname);
+                    }
+                } catch (error) {
+                    // Ignore errors for guilds where the user is not a member
+                    if (error.code !== 10007) { // 10007: Unknown Member
+                        console.error(`Error changing nickname in guild ${guild.id}:`, error);
+                    }
+                }
+            });
+
+            // Wait for all nickname changes to complete
+            await Promise.all(promises);
+
+            interaction.reply(`Nickname changed to "${newNickname}" for ${user.user.tag} in all servers where the bot and user are members.`);
         } catch (error) {
             console.error(error);
             interaction.reply('An error occurred while changing the nickname.');
         }
-    }, // Add a closing curly brace here
+    },
 };
