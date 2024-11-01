@@ -19,6 +19,8 @@ module.exports = {
     ],
     callback: async (client, interaction) => {
         try {
+            console.log('Interaction received:', interaction);
+
             // Check if the user has the necessary permissions
             if (!interaction.member.permissions.has(PermissionFlagsBits.ManageNicknames)) {
                 return interaction.reply('You do not have permission to change nicknames.');
@@ -30,7 +32,7 @@ module.exports = {
 
             // Check if the user is the owner of the guild
             if (user.id === interaction.guild.ownerId) {
-                return interaction.reply('I cannot change the nickname of the guild owner.');
+                return interaction.reply('I cannot change the nickname of the guild owner. As the Owner, you can change your nickname manually via /nick(built in system for discord). But I can change the nickname of other members. Please try again with a different user. The guild owner has full immunity of any and all moderation commands inflicted by the bots.');
             }
 
             // Iterate over all guilds the bot is in
@@ -55,7 +57,7 @@ module.exports = {
 
             interaction.reply(`Nickname changed to "${newNickname}" for ${user.user.tag} in all servers where the bot and user are members.`);
         } catch (error) {
-            console.error(error);
+            console.error('Error changing nickname:', error);
             interaction.reply('An error occurred while changing the nickname.');
         }
     },

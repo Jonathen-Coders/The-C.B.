@@ -1,20 +1,19 @@
-const { ApplicationCommandOptionType, ActivityType } = require('discord.js');
+const { ApplicationCommandOptionType, ActivityType, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     name: 'sendnumbers',
-    deleted: false,
-    description: 'Send 1000 messages with each message containing a unique number',
+    description: 'Send numbers to a specified channel and delete them slowly.',
     options: [
         {
             name: 'channel',
-            description: 'The channel to send messages to',
+            description: 'The channel to send numbers to',
             type: ApplicationCommandOptionType.Channel,
             required: true,
         },
     ],
     callback: async (client, interaction) => {
         // Check if the user has the required permissions
-        if (!interaction.member.permissions.has('MANAGE_MESSAGES')) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return interaction.reply('You do not have permission to use this command.');
         }
 
@@ -31,28 +30,50 @@ module.exports = {
             status: 'dnd',
         });
 
-        // Send 1000 messages with a delay
+        // Store message IDs to delete later
+        const messageIds = [];
+
+        // Send 100 messages with a delay
         for (let i = 1; i <= 100; i++) {
             setTimeout(async () => {
-                await targetChannel.send(i.toString())
-                    .catch(err => {
-                        console.error(err);
-                        interaction.followUp(`An error occurred while sending messages.${err}`);
-                        return;
-                    });
-                console.log(i.toString());
-                if (i === 1000) {
-                    client.user.setPresence({
-                        status: 'online',
-                    });
-                    interaction.followUp('Successfully sent 100 messages.')
-                        .then(msg => {
-                            // Automatically delete the success message after 5 seconds
-                            msg.delete({ timeout: 5000 });
+                try {
+                    const message = await targetChannel.send(i.toString());
+                    messageIds.push(message.id);
+                    console.log(i.toString());
+
+                    if (i === 100) {
+                        client.user.setPresence({
+                            status: 'online',
                         });
+                        await interaction.followUp('Successfully sent 100 messages.')
+                            .then(msg => {
+                                // Automatically delete the success message after 5 seconds
+                                setTimeout(() => msg.delete(), 5000);
+                            });
+
+                        // Start deleting messages slowly
+                        deleteMessagesSlowly(targetChannel, messageIds);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    interaction.followUp(`An error occurred while sending messages: ${err}`);
                 }
             }, i * 1000); // Delay of 1 second
         }
     },
 };
 
+// Function to delete messages slowly
+async function deleteMessagesSlowly(channel, messageIds) {
+    for (const messageId of messageIds) {
+        setTimeout(async () => {
+            try {
+                const message = await channel.messages.fetch(messageId);
+                await message.delete();
+                console.log(`Deleted message: ${messageId}`);
+            } catch (err) {
+                console.error(`Error deleting message ${messageId}:`, err);
+            }
+        }, 1000); // Delay of 1 second between deletions
+    }
+}

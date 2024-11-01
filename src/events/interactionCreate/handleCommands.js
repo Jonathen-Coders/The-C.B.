@@ -64,9 +64,9 @@ module.exports = async (client, interaction) => {
 
     // Execute the command
     if (commandObject.execute) {
-      await commandObject.execute(interaction);
+      await commandObject.execute(client, interaction);
     } else if (commandObject.callback) {
-      await commandObject.callback(interaction);
+      await commandObject.callback(client, interaction);
     } else {
       throw new Error('Command does not have an execute or callback function.');
     }
