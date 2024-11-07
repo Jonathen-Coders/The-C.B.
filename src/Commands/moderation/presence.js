@@ -3,7 +3,7 @@ const { ApplicationCommandOptionType, ActivityType } = require ('discord.js');
 module.exports = {
     name: 'activity',
     description: 'Sets the bot\'s presence (WIP)',
-    deleted: false,   // This command is not ready for use yet 
+    deleted: true,   // This command is not ready for use yet 
     devOnly: true,
     options: [
         {
