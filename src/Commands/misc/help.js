@@ -22,9 +22,17 @@ module.exports = {
             - \`/announce\`: Make announcements.\n
             - \`/ban\`: Ban a user.\n
             - \`/kick\`: Kick a user.\n
-            - \`/Nickname\`: Change a user's nickname.\n
+            - \`/Nickname\`: Change a user's nickname in all discords.\n
             - \`/bulkdelete\`: Delete multiple messages.\n
             - \`/timeout\`: Timeout a user.\n
+            - \`/unban\`*: Unban a user.\n
+            - \`/unmute\`*: Unmute a user.\n
+            - \`/mute\`*: Mute a user.\n
+            - \`/sendnotification\`*: Send a notification to a user.\n
+            - \`/senddm\`*: Send a DM to a user.\n
+            - \`/help\`: Display this message.\n
+            - \`/sendnumbers\`: Counts to 100 in a selected channel and then deletes it.\n
+            
             (*)This command is a wip or not implented.\n
             (!)This command is for the Main discord server.\n`;
 
