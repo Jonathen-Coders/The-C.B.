@@ -13,6 +13,8 @@ const client = new Client({
   ],
 });
 
+eventHandler(client);
+
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   // Your message handling logic here
