@@ -32,10 +32,12 @@ module.exports = {
       // Initialize the database key if it doesn't exist
       if (!user) {
         user = {
-          balance: 0,
+          balance: Number(0),
           lastDaily: null
         };
         await db.set(userKey, user);
+      } else {
+        user.balance = Number(user.balance || 0);
       }
 
       const lastDailyDate = user.lastDaily ? new Date(user.lastDaily).toDateString() : null;
@@ -49,7 +51,7 @@ module.exports = {
       }
 
       user.lastDaily = new Date();
-      user.balance += dailyAmount;
+      user.balance = Number(user.balance) + Number(dailyAmount);
       await db.set(userKey, user);
 
       interaction.editReply(
