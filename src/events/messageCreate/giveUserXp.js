@@ -1,6 +1,7 @@
+
 const { Client, Message } = require('discord.js');
 const calculateLevelXp = require('../../utils/calculateLevelXp');
-const Level = require('../../models/Level');
+const { db } = require('replit');
 const cooldowns = new Set();
 
 function getRandomXp(min, max) {
@@ -18,14 +19,10 @@ module.exports = async (client, message) => {
   if (!message.inGuild() || message.author.bot || cooldowns.has(message.author.id)) return;
 
   const xpToGive = getRandomXp(5, 15);
-
-  const query = {
-    userId: message.author.id,
-    guildId: message.guild.id,
-  };
+  const levelKey = `${message.guild.id}-${message.author.id}`;
 
   try {
-    const level = await Level.findOne(query);
+    let level = db[levelKey];
 
     if (level) {
       level.xp += xpToGive;
@@ -37,26 +34,21 @@ module.exports = async (client, message) => {
         message.channel.send(`${message.member} you have leveled up to **level ${level.level}**.`);
       }
 
-      await level.save().catch((e) => {
-        console.log(`Error saving updated level ${e}`);
-        return;
-      });
+      db[levelKey] = level;
+      
       cooldowns.add(message.author.id);
       setTimeout(() => {
         cooldowns.delete(message.author.id);
       }, 60000);
-    }
-
-    // if (!level)
-    else {
+    } else {
       // create new level
-      const newLevel = new Level({
+      db[levelKey] = {
         userId: message.author.id,
         guildId: message.guild.id,
         xp: xpToGive,
-      });
+        level: 1,
+      };
 
-      await newLevel.save();
       cooldowns.add(message.author.id);
       setTimeout(() => {
         cooldowns.delete(message.author.id);
