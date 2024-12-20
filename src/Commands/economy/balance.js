@@ -45,7 +45,7 @@ module.exports = {
       await interaction.editReply('There was an error fetching the balance.');
     }
   },
-  deleted: false,
+  deleted: true,
   name: 'balance',
   description: "See yours/someone else's balance",
   options: [

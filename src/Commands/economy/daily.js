@@ -7,7 +7,7 @@ const dailyAmount = 1000;
 
 module.exports = {
   name: 'daily',
-  deleted: false,
+  deleted: true,
   description: 'Collect your dailies!',
   callback: async (client, interaction) => {
     if (!interaction.inGuild()) {

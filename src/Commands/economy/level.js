@@ -67,7 +67,7 @@ module.exports = {
     const attachment = new AttachmentBuilder(data);
     interaction.editReply({ files: [attachment] });
   },
-  deleted: false,
+  deleted: true,
   name: 'level',
   description: "Shows your/someone's level.",
   options: [
