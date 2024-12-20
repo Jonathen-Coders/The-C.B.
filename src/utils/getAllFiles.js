@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = (directory, foldersOnly = false) => {
+  // Normalize directory path to match actual case on filesystem
+  directory = directory.replace(/commands/i, 'Commands');
   let fileNames = [];
 
   const files = fs.readdirSync(directory, { withFileTypes: true });
