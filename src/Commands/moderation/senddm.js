@@ -3,7 +3,7 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.j
 module.exports = {
     name: 'senddm',
     description: 'Send a direct message to a specified user.',
-    deleted: true,
+    deleted: false,
     options: [
         {
             name: 'user',
