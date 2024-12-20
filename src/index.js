@@ -22,8 +22,8 @@ client.on('messageCreate', async (message) => {
 
 // Initialize Express server
 const app = require('../server');
-app.listen(3000, '0.0.0.0', () => {
-  console.log('Server running on port 3000');
+app.listen(8080, '0.0.0.0', () => {
+  console.log('Server running on port 8080');
 });
 
 (async () => {
