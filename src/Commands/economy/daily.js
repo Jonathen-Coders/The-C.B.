@@ -9,11 +9,6 @@ module.exports = {
   name: 'daily',
   deleted: false,
   description: 'Collect your dailies!',
-  /**
-   *
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
     if (!interaction.inGuild()) {
       interaction.reply({
@@ -34,6 +29,7 @@ module.exports = {
           balance: 0,
           lastDaily: null
         };
+        await db.set(userKey, user);
       }
 
       const currentDate = new Date();
@@ -44,16 +40,12 @@ module.exports = {
         return;
       }
 
-      const newBalance = (Number(user.balance) || 0) + dailyAmount;
+      user.balance = (Number(user.balance) || 0) + dailyAmount;
+      user.lastDaily = currentDate.toString();
       
-      const updatedUser = {
-        ...user,
-        balance: newBalance,
-        lastDaily: currentDate.toString()
-      };
-      await db.set(userKey, updatedUser);
+      await db.set(userKey, user);
 
-      await interaction.editReply(`${dailyAmount} was added to your balance. Your new balance is ${newBalance}`);
+      await interaction.editReply(`${dailyAmount} was added to your balance. Your new balance is ${user.balance}`);
     } catch (error) {
       console.error(`Error with /daily:`, error);
       await interaction.editReply('There was an error processing your daily reward.');
