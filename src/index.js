@@ -20,9 +20,13 @@ client.on('messageCreate', async (message) => {
   // Your message handling logic here
 });
 
+// Initialize Express server
+const server = require('../server');
+
 (async () => {
   try {
-    client.login(process.env.TOKEN);
+    await client.login(process.env.TOKEN);
+    console.log('Bot is online!');
   } catch (error) {
     console.log(`Error: ${error}`);
   }

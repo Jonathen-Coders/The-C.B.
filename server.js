@@ -1,11 +1,19 @@
 
 const express = require('express');
-const session = require('express-session');
-const passport = require('passport');
-const DiscordStrategy = require('passport-discord').Strategy;
-const cors = require('cors');
-
 const app = express();
+
+// Simple health check endpoint
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
+
+// Basic status endpoint
+app.get('/status', (req, res) => {
+  res.json({
+    status: 'online',
+    uptime: process.uptime()
+  });
+});
 
 // CORS configuration for GitHub Pages
 app.use(cors({
