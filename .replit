@@ -15,6 +15,10 @@ name = "run"
 mode = "sequential"
 author = 38471709
 
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm ."
