@@ -1,6 +1,6 @@
+
 const { Client, Interaction } = require('discord.js');
-// const User = require('../../models/User'); // Remove this line
-const { db } = require('replit'); // Add this line
+const { db } = require('replit');
 
 const dailyAmount = 1000;
 
@@ -27,35 +27,35 @@ module.exports = {
 
       const userKey = `${interaction.guild.id}-${interaction.member.id}`;
 
-      let user = db[userKey];
-
-      if (user) {
-        const lastDailyDate = new Date(user.lastDaily).toDateString();
-        const currentDate = new Date().toDateString();
-
-        if (lastDailyDate === currentDate) {
-          interaction.editReply(
-            'You have already collected your dailies today. Come back tomorrow!'
-          );
-          return;
-        }
-        
-        user.lastDaily = new Date();
-      } else {
-        user = {
-          lastDaily: new Date(),
-          balance: 0
+      // Initialize the database key if it doesn't exist
+      if (!db[userKey]) {
+        db[userKey] = {
+          balance: 0,
+          lastDaily: null
         };
       }
 
+      let user = db[userKey];
+      const lastDailyDate = user.lastDaily ? new Date(user.lastDaily).toDateString() : null;
+      const currentDate = new Date().toDateString();
+
+      if (lastDailyDate === currentDate) {
+        interaction.editReply(
+          'You have already collected your dailies today. Come back tomorrow!'
+        );
+        return;
+      }
+
+      user.lastDaily = new Date();
       user.balance += dailyAmount;
-      db[userKey] = user; // Store the user data back in the Replit database
+      db[userKey] = user;
 
       interaction.editReply(
         `${dailyAmount} was added to your balance. Your new balance is ${user.balance}`
       );
     } catch (error) {
       console.log(`Error with /daily: ${error}`);
+      interaction.editReply('There was an error processing your daily reward.');
     }
   },
 };
