@@ -21,7 +21,10 @@ client.on('messageCreate', async (message) => {
 });
 
 // Initialize Express server
-const server = require('../server');
+const app = require('../server');
+app.listen(80, '0.0.0.0', () => {
+  console.log('Server running on port 80');
+});
 
 (async () => {
   try {

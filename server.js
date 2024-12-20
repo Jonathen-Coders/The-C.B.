@@ -15,6 +15,4 @@ app.get('/status', (req, res) => {
   });
 });
 
-app.listen(80, '0.0.0.0', () => {
-  console.log('Server running on port 80');
-});
+module.exports = app;
