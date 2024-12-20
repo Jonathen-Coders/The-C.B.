@@ -29,37 +29,32 @@ module.exports = {
       const userKey = `${interaction.guild.id}-${interaction.member.id}`;
       let user = await db.get(userKey);
 
-      // Initialize the database key if it doesn't exist
       if (!user) {
         user = {
-          balance: Number(0),
+          balance: 0,
           lastDaily: null
         };
-        await db.set(userKey, user);
-      } else {
-        user.balance = Number(user.balance || 0);
       }
 
-      const lastDailyDate = user.lastDaily ? new Date(user.lastDaily).toDateString() : null;
-      const currentDate = new Date().toDateString();
+      const currentDate = new Date();
+      const lastDaily = user.lastDaily ? new Date(user.lastDaily) : null;
 
-      if (lastDailyDate === currentDate) {
-        interaction.editReply(
-          'You have already collected your dailies today. Come back tomorrow!'
-        );
+      if (lastDaily && lastDaily.toDateString() === currentDate.toDateString()) {
+        await interaction.editReply('You have already collected your dailies today. Come back tomorrow!');
         return;
       }
 
-      user.lastDaily = new Date();
-      user.balance = Number(user.balance) + Number(dailyAmount);
-      await db.set(userKey, user);
+      const newBalance = (Number(user.balance) || 0) + dailyAmount;
+      
+      await db.set(userKey, {
+        balance: newBalance,
+        lastDaily: currentDate.toString()
+      });
 
-      interaction.editReply(
-        `${dailyAmount} was added to your balance. Your new balance is ${user.balance}`
-      );
+      await interaction.editReply(`${dailyAmount} was added to your balance. Your new balance is ${newBalance}`);
     } catch (error) {
-      console.log(`Error with /daily: ${error}`);
-      interaction.editReply('There was an error processing your daily reward.');
+      console.error(`Error with /daily:`, error);
+      await interaction.editReply('There was an error processing your daily reward.');
     }
   },
 };
