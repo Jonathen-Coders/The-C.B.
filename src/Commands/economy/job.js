@@ -2,14 +2,14 @@ const { ApplicationCommandOptionType, ActionRowBuilder, ButtonBuilder,EmbedBuild
 // const User = require('../../models/User'); // Remove this line
 const { db } = require('replit'); // Add this line
 
-    deleted: true,
+   
 
 
 module.exports = {
     name: 'job',
     description: 'Choose a job and earn currency.',
     options: [], // You can add options if needed (e.g., different job types)
-
+  deleted: true,
     // The callback function handles the command logic
     callback: async (client, interaction) => {
         if (!interaction.inGuild()) {

@@ -8,7 +8,7 @@ const canvacord = require('canvacord');
 const calculateLevelXp = require('../../utils/calculateLevelXp');
 // const Level = require('../../models/Level'); // Remove this line
 const { db } = require('replit'); // Add this line
-
+ deleted: true,
 module.exports = {
   /**
    *
