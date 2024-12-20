@@ -6,6 +6,7 @@
   "scripts": {
     "slash": "node src/register-commands.js",
     "send": "node src/send-message.js",
+    "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
