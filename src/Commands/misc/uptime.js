@@ -1,6 +1,5 @@
 
 const { Client, Interaction } = require('discord.js');
-const prettyMs = require('pretty-ms');
 
 module.exports = {
   name: 'uptime',
@@ -9,7 +8,8 @@ module.exports = {
   callback: async (client, interaction) => {
     await interaction.deferReply();
     
-    const uptime = prettyMs(client.uptime, { verbose: true });
+    const prettyMs = await import('pretty-ms');
+    const uptime = prettyMs.default(client.uptime, { verbose: true });
     
     await interaction.editReply(`🤖 Bot has been online for: ${uptime}`);
   },
