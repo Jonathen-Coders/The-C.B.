@@ -1,6 +1,5 @@
 
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.js');
-// Import the necessary Discord.js modules
 
 module.exports = {
     name: 'bulkdelete',
@@ -8,79 +7,47 @@ module.exports = {
     deleted: false,
     options: [
         {
-            name: 'target',
-            description: 'The target of the purge (user, bots, or all)',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-            choices: [
-                {
-                    name: 'User',
-                    value: 'user',
-                },
-                {
-                    name: 'Bots',
-                    value: 'bots',
-                },
-                {
-                    name: 'All',
-                    value: 'all',
-                },
-            ],
-        },
-        {
             name: 'amount',
-            description: 'The number of messages to delete',
+            description: 'The number of messages to delete (max 100)',
             type: ApplicationCommandOptionType.Integer,
             required: true,
-        },
-        
+        }
     ],
     callback: async (client, interaction) => {
-        // Check if the user has the required permissions
-        if (!interaction.member.permissions.has('MANAGE_MESSAGES')) {
-            return interaction.reply('You do not have permission to use this command.');
-        }
-
-        // Get the amount and target from the interaction options
-        let amount = interaction.options.getInteger('amount');
-        const target = interaction.options.getString('target');
-        // Send an initial response
-        await interaction.reply('Deleting messages...');
-        // Check if the amount is a valid number
-        if (isNaN(amount) || amount <= 0 || amount > 1000) {
-            return interaction.reply('Please provide a valid number between 1 and 1000 for the amount.');
-        }
-
-         // Fetch and delete messages in batches of 100
-         let deletedMessages = 0;
-        while (amount > 0) {
-            const fetchAmount = Math.min(amount, 100);
-            let fetched;
-            if (target === 'user') {
-                fetched = await interaction.channel.messages.fetch({ limit: fetchAmount, before: interaction.id, user: interaction.user.id });
-            } else if (target === 'bots') {
-                fetched = await interaction.channel.messages.fetch({ limit: fetchAmount, before: interaction.id, user: interaction.client.user.id });
-            } else {
-                fetched = await interaction.channel.messages.fetch({ limit: fetchAmount, before: interaction.id });
-            }
-            let messagesToDelete = fetched.filter(msg => Date.now() - msg.createdTimestamp < 14 * 24 * 60 * 60 * 1000);
-
-            // Delete the fetched messages
-            await interaction.channel.bulkDelete(messagesToDelete)
-                .catch(err => {
-                    console.error(err);
-                    interaction.reply(`An error occurred while deleting messages.${err}`);
-                });
-
-                deletedMessages += messagesToDelete.size;
-                amount -= fetchAmount;
-        }
-
-        // Send a success message
-        interaction.editReply(`Successfully deleted ${deletedMessages} messages.`)
-            .then(msg => {
-                // Automatically delete the success message after 5 seconds
-                msg.delete({ timeout: 10000 });
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
+            return interaction.reply({
+                content: 'You do not have permission to use this command.',
+                ephemeral: true
             });
+        }
+
+        const amount = interaction.options.getInteger('amount');
+        
+        if (amount <= 0 || amount > 100) {
+            return interaction.reply({
+                content: 'Please provide a number between 1 and 100.',
+                ephemeral: true
+            });
+        }
+
+        await interaction.deferReply({ ephemeral: true });
+
+        try {
+            const messages = await interaction.channel.messages.fetch({ limit: amount });
+            const filteredMessages = messages.filter(msg => 
+                Date.now() - msg.createdTimestamp < 1209600000 // 14 days in milliseconds
+            );
+
+            if (filteredMessages.size === 0) {
+                return interaction.editReply('No messages found that can be deleted (messages must be under 14 days old).');
+            }
+
+            await interaction.channel.bulkDelete(filteredMessages);
+            
+            return interaction.editReply(`Successfully deleted ${filteredMessages.size} messages.`);
+        } catch (error) {
+            console.error('Error in bulkdelete:', error);
+            return interaction.editReply('Failed to delete messages. Make sure they are not older than 14 days.');
+        }
     },
 };
