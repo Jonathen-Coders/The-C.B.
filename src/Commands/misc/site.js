@@ -7,7 +7,7 @@ module.exports = {
     callback: async (client, interaction) => {
         try {
             // Replace this URL with your GitHub Pages URL
-            const websiteUrl = 'https://yourusername.github.io/your-repo-name';
+            const websiteUrl = 'https://bot-site.joncodingreviews.com/';
             
             await interaction.reply({
                 content: `🌐 **Bot Website**: [Click Here](${websiteUrl})`,
