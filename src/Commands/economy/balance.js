@@ -1,6 +1,7 @@
-const { Client, Interaction, ApplicationCommandOptionType } = require('discord.js');
 
-const { db } = require('replit'); // Add this line
+const { Client, Interaction, ApplicationCommandOptionType } = require('discord.js');
+const Database = require("@replit/database");
+const db = new Database();
 
 module.exports = {
   /**
@@ -21,20 +22,23 @@ module.exports = {
 
     await interaction.deferReply();
 
-    // Check if user exists in Replit database
-    const userKey = `${interaction.guild.id}-${targetUserId}`;
-    if (!db[userKey]) {
-      interaction.editReply(`<@${targetUserId}> doesn't have a profile yet.`);
-      return;
+    try {
+      const userKey = `${interaction.guild.id}-${targetUserId}`;
+      const user = await db.get(userKey);
+
+      if (!user) {
+        await interaction.editReply(`<@${targetUserId}> doesn't have a profile yet.`);
+        return;
+      }
+
+      await interaction.editReply(
+        targetUserId === interaction.member.id
+          ? `Your balance is **${user.balance || 0}**`
+          : `<@${targetUserId}>'s balance is **${user.balance || 0}**`
+      );
+    } catch (error) {
+      await interaction.editReply('There was an error fetching the balance.');
     }
-
-    const user = db[userKey]; // Assuming you have user data stored in the database
-
-    interaction.editReply(
-      targetUserId === interaction.member.id
-        ? `Your balance is **${user.balance}**`
-        : `<@${targetUserId}>'s balance is **${user.balance}**`
-    );
   },
   deleted: false,
   name: 'balance',
