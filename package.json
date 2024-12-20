@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@replit/database": "^3.0.1",
     "canvacord": "^5.4.10",
     "cors": "^2.8.5",
     "discord.js": "^14.16.3",

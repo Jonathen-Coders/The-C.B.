@@ -7,8 +7,13 @@ channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "node src/index.js"]
-deploymentTarget = "vm"
+deploymentTarget = "gce"
+ignorePorts = true
 
 [[ports]]
 localPort = 80
 externalPort = 80
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
