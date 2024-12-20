@@ -1,6 +1,6 @@
 
 const { Client, Interaction } = require('discord.js');
-const { Database } = require("@replit/database");
+const Database = require("@replit/database");
 const db = new Database();
 
 const dailyAmount = 1000;
