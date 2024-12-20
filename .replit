@@ -1,5 +1,5 @@
 modules = ["nodejs-20", "postgresql-16"]
-run = "node src/index.js"
+run = "node src/index.js & node server.js"
 
 [nix]
 channel = "stable-24_05"
@@ -8,17 +8,6 @@ channel = "stable-24_05"
 run = ["sh", "-c", "node src/index.js"]
 deploymentTarget = "cloudrun"
 
-[workflows]
-
-[[workflows.workflow]]
-name = "run"
-mode = "sequential"
-author = 38471709
-
 [[ports]]
 localPort = 8080
 externalPort = 8080
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm ."
