@@ -1,5 +1,7 @@
 const { ApplicationCommandOptionType, ActionRowBuilder, ButtonBuilder,EmbedBuilder } = require('discord.js');
-const User = require('../../models/User');
+// const User = require('../../models/User'); // Remove this line
+const { db } = require('replit'); // Add this line
+
 module.exports = {
     name: 'job',
     description: 'Choose a job and earn currency.',
@@ -14,16 +16,11 @@ module.exports = {
             });
             return;
         }
-        const query = {
-            userId: interaction.member.id,
-            guildId: interaction.guild.id,
-          };
-    let user = await User.findOne(query);
+        const userKey = `${interaction.guild.id}-${interaction.member.id}`;
+        let user = db[userKey];
         if (!user) {
             // User doesn't have a profile, create one
-            user = new User({
-                userId: interaction.member.id,
-                guildId: interaction.guild.id,
+            user = {
                 balance: 0, // Set an initial balance
                 lastDaily: new Date(), // Set the current date as last daily
                 selectedJob: 'miner', // Default job (adjust as needed)
@@ -33,8 +30,8 @@ module.exports = {
                     ['pizza_delivery', 20],
                     // Add other jobs as needed
                 ]),
-            });
-            await user.save();
+            };
+            db[userKey] = user; // Store the user data back in the Replit database
             await interaction.deferReply();
             await interaction.editReply('You have been registered. Start earning currency by choosing a job!');
         }else{
@@ -86,7 +83,7 @@ module.exports = {
                 user.selectedJob = customId;
                 user.jobPayouts = user.jobPayouts || {}; // Initialize if not already set
                 user.jobPayouts[customId] = jobReward;
-                await user.save();
+                db[userKey] = user; // Store the user data back in the Replit database
 
                 // Send an ephemeral reply to the user
                 await buttonInteraction.reply({

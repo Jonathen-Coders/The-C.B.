@@ -6,7 +6,8 @@ const {
 } = require('discord.js');
 const canvacord = require('canvacord');
 const calculateLevelXp = require('../../utils/calculateLevelXp');
-const Level = require('../../models/Level');
+// const Level = require('../../models/Level'); // Remove this line
+const { db } = require('replit'); // Add this line
 
 module.exports = {
   /**
@@ -26,10 +27,8 @@ module.exports = {
     const targetUserId = mentionedUserId || interaction.member.id;
     const targetUserObj = await interaction.guild.members.fetch(targetUserId);
 
-    const fetchedLevel = await Level.findOne({
-      userId: targetUserId,
-      guildId: interaction.guild.id,
-    });
+    const levelKey = `${interaction.guild.id}-${targetUserId}`;
+    const fetchedLevel = db[levelKey];
 
     if (!fetchedLevel) {
       interaction.editReply(
@@ -40,9 +39,8 @@ module.exports = {
       return;
     }
 
-    let allLevels = await Level.find({ guildId: interaction.guild.id }).select(
-      '-_id userId level xp'
-    );
+    let allLevels = Object.values(db).filter(lvl => lvl.guildId === interaction.guild.id)
+      .map(lvl => ({ userId: lvl.userId, level: lvl.level, xp: lvl.xp }));
 
     allLevels.sort((a, b) => {
       if (a.level === b.level) {

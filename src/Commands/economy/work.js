@@ -1,4 +1,5 @@
-const User = require('../../models/User');
+// const User = require('../../models/User'); // Remove this line
+const { db } = require('replit'); // Add this line
 
 module.exports = {
     name: 'work',
@@ -19,11 +20,8 @@ module.exports = {
             await interaction.deferReply();
            
             // Fetch the user's profile (replace with your actual User model)
-            const query = {
-                userId: interaction.member.id,
-                guildId: interaction.guild.id,
-            };
-            let user = await User.findOne(query);
+            const userKey = `${interaction.guild.id}-${interaction.member.id}`;
+            let user = db[userKey];
 
             if (!user) {
                 interaction.editReply('You don\'t have a profile yet. Start earning currency by choosing a job!');
@@ -38,7 +36,7 @@ module.exports = {
 
             // Update the user's balance
             user.balance += jobReward;
-            await user.save();
+            db[userKey] = user; // Store the user data back in the Replit database
 
             interaction.editReply(
                 `You worked as a ${selectedJob} and earned ${jobReward} coins! Your new balance is ${user.balance}`

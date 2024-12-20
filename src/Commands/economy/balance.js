@@ -1,5 +1,6 @@
 const { Client, Interaction, ApplicationCommandOptionType } = require('discord.js');
-const User = require('../../models/User');
+
+const { db } = require('replit'); // Add this line
 
 module.exports = {
   /**
@@ -20,12 +21,14 @@ module.exports = {
 
     await interaction.deferReply();
 
-    const user = await User.findOne({ userId: targetUserId, guildId: interaction.guild.id });
-
-    if (!user) {
+    // Check if user exists in Replit database
+    const userKey = `${interaction.guild.id}-${targetUserId}`;
+    if (!db[userKey]) {
       interaction.editReply(`<@${targetUserId}> doesn't have a profile yet.`);
       return;
     }
+
+    const user = db[userKey]; // Assuming you have user data stored in the database
 
     interaction.editReply(
       targetUserId === interaction.member.id

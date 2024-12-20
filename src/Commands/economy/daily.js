@@ -1,5 +1,6 @@
 const { Client, Interaction } = require('discord.js');
-const User = require('../../models/User');
+// const User = require('../../models/User'); // Remove this line
+const { db } = require('replit'); // Add this line
 
 const dailyAmount = 1000;
 
@@ -24,15 +25,12 @@ module.exports = {
     try {
       await interaction.deferReply();
 
-      const query = {
-        userId: interaction.member.id,
-        guildId: interaction.guild.id,
-      };
+      const userKey = `${interaction.guild.id}-${interaction.member.id}`;
 
-      let user = await User.findOne(query);
+      let user = db[userKey];
 
       if (user) {
-        const lastDailyDate = user.lastDaily.toDateString();
+        const lastDailyDate = new Date(user.lastDaily).toDateString();
         const currentDate = new Date().toDateString();
 
         if (lastDailyDate === currentDate) {
@@ -44,14 +42,14 @@ module.exports = {
         
         user.lastDaily = new Date();
       } else {
-        user = new User({
-          ...query,
+        user = {
           lastDaily: new Date(),
-        });
+          balance: 0
+        };
       }
 
       user.balance += dailyAmount;
-      await user.save();
+      db[userKey] = user; // Store the user data back in the Replit database
 
       interaction.editReply(
         `${dailyAmount} was added to your balance. Your new balance is ${user.balance}`
