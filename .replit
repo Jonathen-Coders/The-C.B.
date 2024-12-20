@@ -1,12 +1,13 @@
+
 modules = ["nodejs-20", "postgresql-16"]
-run = "node src/index.js & node server.js"
+run = "node src/index.js"
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "node src/index.js"]
-deploymentTarget = "cloudrun"
+deploymentTarget = "vm"
 
 [[ports]]
 localPort = 80
