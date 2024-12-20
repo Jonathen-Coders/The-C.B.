@@ -1,12 +1,12 @@
-// const User = require('../../models/User'); // Remove this line
-const { db } = require('replit'); // Add this line
+
+const Database = require("@replit/database");
+const db = new Database();
 
 module.exports = {
     name: 'work',
     description: 'Work your job and earn currency.',
-    options: [], // You can add options if needed (e.g., different job types)
+    options: [],
 
-    // The callback function handles the command logic
     callback: async (client, interaction) => {
         if (!interaction.inGuild()) {
             interaction.reply({
@@ -19,31 +19,38 @@ module.exports = {
         try {
             await interaction.deferReply();
            
-            // Fetch the user's profile (replace with your actual User model)
             const userKey = `${interaction.guild.id}-${interaction.member.id}`;
-            let user = db[userKey];
+            let user = await db.get(userKey);
 
             if (!user) {
-                interaction.editReply('You don\'t have a profile yet. Start earning currency by choosing a job!');
+                await interaction.editReply('You don\'t have a profile yet. Use the /job command to choose a job first!');
                 return;
             }
 
             const selectedJob = user.selectedJob;
+            if (!selectedJob) {
+                await interaction.editReply('You need to select a job first using the /job command!');
+                return;
+            }
 
-            // Retrieve the job reward from the map
-            const jobReward = user.jobPayouts.get(selectedJob);
-    
+            // Define job payouts
+            const jobPayouts = {
+                miner: 36,
+                builder: 25,
+                pizza_delivery: 20,
+            };
 
-            // Update the user's balance
-            user.balance += jobReward;
-            db[userKey] = user; // Store the user data back in the Replit database
+            const jobReward = jobPayouts[selectedJob];
+            user.balance = (Number(user.balance) || 0) + jobReward;
+            
+            await db.set(userKey, user);
 
-            interaction.editReply(
+            await interaction.editReply(
                 `You worked as a ${selectedJob} and earned ${jobReward} coins! Your new balance is ${user.balance}`
             );
         } catch (error) {
             console.error('Error with /work:', error);
-            interaction.editReply('An error occurred while processing your work.');
+            await interaction.editReply('An error occurred while processing your work.');
         }
     },
 };

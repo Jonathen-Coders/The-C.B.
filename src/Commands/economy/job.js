@@ -21,17 +21,11 @@ module.exports = {
         if (!user) {
             // User doesn't have a profile, create one
             user = {
-                balance: 0, // Set an initial balance
-                lastDaily: new Date(), // Set the current date as last daily
-                selectedJob: 'miner', // Default job (adjust as needed)
-                jobPayouts: new Map([
-                    ['miner', 36],
-                    ['builder', 25],
-                    ['pizza_delivery', 20],
-                    // Add other jobs as needed
-                ]),
+                balance: 0,
+                lastDaily: new Date().toString(),
+                selectedJob: null
             };
-            db[userKey] = user; // Store the user data back in the Replit database
+            await db.set(userKey, user);
             await interaction.deferReply();
             await interaction.editReply('You have been registered. Start earning currency by choosing a job!');
         }else{
