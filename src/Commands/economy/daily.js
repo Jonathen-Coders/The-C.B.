@@ -46,10 +46,12 @@ module.exports = {
 
       const newBalance = (Number(user.balance) || 0) + dailyAmount;
       
-      await db.set(userKey, {
+      const updatedUser = {
+        ...user,
         balance: newBalance,
         lastDaily: currentDate.toString()
-      });
+      };
+      await db.set(userKey, updatedUser);
 
       await interaction.editReply(`${dailyAmount} was added to your balance. Your new balance is ${newBalance}`);
     } catch (error) {
