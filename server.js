@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
+const passport = require('passport');
+const DiscordStrategy = require('passport-discord').Strategy;
 const app = express();
 
 // Simple health check endpoint
