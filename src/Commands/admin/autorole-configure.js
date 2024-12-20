@@ -1,12 +1,8 @@
+
 const { ApplicationCommandOptionType, Client, Interaction, PermissionFlagsBits } = require('discord.js');
-const AutoRole = require('../../models/AutoRole');
+const { db } = require('replit');
 
 module.exports = {
-  /**
-   *
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
     if (!interaction.inGuild()) {
       interaction.reply('You can only run this command inside a server.');
@@ -17,30 +13,21 @@ module.exports = {
 
     try {
       await interaction.deferReply();
-
-      let autoRole = await AutoRole.findOne({ guildId: interaction.guild.id });
-
-      if (autoRole) {
-        if (autoRole.roleId === targetRoleId) {
-          interaction.editReply('Auto role has already been configured for that role. To disable run `/autorole-disable`');
-          return;
-        }
-
-        autoRole.roleId = targetRoleId;
-      } else {
-        autoRole = new AutoRole({
-          guildId: interaction.guild.id,
-          roleId: targetRoleId,
-        });
+      const dbKey = `autorole_${interaction.guild.id}`;
+      
+      const existingRole = await db.get(dbKey);
+      if (existingRole && existingRole === targetRoleId) {
+        interaction.editReply('Auto role has already been configured for that role. To disable run `/autorole-disable`');
+        return;
       }
 
-      await autoRole.save();
+      await db.set(dbKey, targetRoleId);
       interaction.editReply('Autorole has now been configured. To disable run `/autorole-disable`');
     } catch (error) {
       console.log(error);
     }
   },
-deleted: false,
+
   name: 'autorole-configure',
   description: 'Configure your auto-role for this server.',
   options: [
