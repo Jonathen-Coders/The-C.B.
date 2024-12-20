@@ -27,14 +27,19 @@ module.exports = {
       const user = await db.get(userKey);
 
       if (!user) {
-        await interaction.editReply(`<@${targetUserId}> doesn't have a profile yet.`);
-        return;
+        user = {
+          balance: Number(0),
+          lastDaily: null
+        };
+        await db.set(userKey, user);
+      } else {
+        user.balance = Number(user.balance || 0);
       }
 
       await interaction.editReply(
         targetUserId === interaction.member.id
-          ? `Your balance is **${user.balance || 0}**`
-          : `<@${targetUserId}>'s balance is **${user.balance || 0}**`
+          ? `Your balance is **${user.balance}**`
+          : `<@${targetUserId}>'s balance is **${user.balance}**`
       );
     } catch (error) {
       await interaction.editReply('There was an error fetching the balance.');
