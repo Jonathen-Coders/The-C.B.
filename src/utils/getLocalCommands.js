@@ -19,6 +19,7 @@ module.exports = (exceptions = []) => {
         continue;
       }
 
+      commandObject.__filename = commandFile;
       localCommands.push(commandObject);
     }
   }

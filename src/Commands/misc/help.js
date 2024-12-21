@@ -15,7 +15,8 @@ module.exports = {
             
             activeCommands.forEach(cmd => {
                 // Extract category from command file path
-                const category = cmd.category || 'misc';
+                const cmdPath = cmd.__filename || '';
+                const category = cmdPath.split('/Commands/')[1]?.split('/')[0] || 'misc';
                 if (!commandsByCategory[category]) {
                     commandsByCategory[category] = [];
                 }
