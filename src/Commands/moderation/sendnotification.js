@@ -3,7 +3,7 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.j
 module.exports = {
     name: 'sendnotification',
     description: 'Send a notification to a specified channel.',
-    deleted: true,
+    deleted: false,
     options: [
         {
             name: 'channel',
