@@ -2,14 +2,14 @@
 const Database = require("@replit/database");
 const db = new Database();
 
-    deleted: true,
+    
 
 
 module.exports = {
     name: 'work',
     description: 'Work your job and earn currency.',
     options: [],
-
+deleted: true,
     callback: async (client, interaction) => {
         if (!interaction.inGuild()) {
             interaction.reply({
