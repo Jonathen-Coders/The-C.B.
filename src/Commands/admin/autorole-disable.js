@@ -3,6 +3,7 @@ const { Client, Interaction, PermissionFlagsBits } = require('discord.js');
 const { db } = require('replit');
 
 module.exports = {
+  deleted: true,
   callback: async (client, interaction) => {
     try {
       await interaction.deferReply();

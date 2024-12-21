@@ -3,6 +3,7 @@ const { ApplicationCommandOptionType, Client, Interaction, PermissionFlagsBits }
 const { db } = require('replit');
 
 module.exports = {
+  deleted: true,
   callback: async (client, interaction) => {
     if (!interaction.inGuild()) {
       interaction.reply('You can only run this command inside a server.');
