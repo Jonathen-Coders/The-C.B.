@@ -1,5 +1,6 @@
 
 const { Client, Interaction, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { exec } = require('child_process');
 
 module.exports = {
   name: 'uptime',
@@ -15,7 +16,7 @@ module.exports = {
       .addComponents(
         new ButtonBuilder()
           .setCustomId('restart_bot')
-          .setLabel('Restart Bot')
+          .setLabel('Restart & Redeploy')
           .setStyle(ButtonStyle.Danger)
       );
 
@@ -24,26 +25,33 @@ module.exports = {
       components: [row]
     });
 
-    // Create button collector
     const collector = interaction.channel.createMessageComponentCollector({
-      time: 15000 // Button will be active for 15 seconds
+      time: 15000
     });
 
     collector.on('collect', async (i) => {
       if (i.customId === 'restart_bot') {
-        // Check if user has permission (bot owner or admin)
         if (!i.member.permissions.has('Administrator')) {
           await i.reply({ content: 'You do not have permission to restart the bot.', ephemeral: true });
           return;
         }
 
-        await i.reply({ content: '⚠️ Restarting bot...', ephemeral: true });
+        await i.reply({ content: '⚠️ Restarting bot and redeploying...', ephemeral: true });
         
-        setTimeout(async () => {
-          await client.destroy();
-          await client.login(process.env.TOKEN);
-          await i.editReply('✅ Bot has been restarted!');
-        }, 5000);
+        // Register any new commands
+        exec('node src/register-commands.js', async (error) => {
+          if (error) {
+            console.error('Error registering commands:', error);
+            return;
+          }
+          
+          // Restart the bot
+          setTimeout(async () => {
+            await client.destroy();
+            await client.login(process.env.TOKEN);
+            await i.editReply('✅ Bot has been restarted and commands redeployed!');
+          }, 5000);
+        });
       }
     });
   },
