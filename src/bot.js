@@ -17,7 +17,39 @@ eventHandler(client);
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-  // Your message handling logic here
+
+  // Handle mentions
+  const botMention = `<@${client.user.id}>`;
+  if (message.content.startsWith(botMention)) {
+    const args = message.content.slice(botMention.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
+    const command = client.commands.get(commandName);
+    if (!command) return;
+
+    try {
+      // Create a fake interaction object
+      const fakeInteraction = {
+        reply: (content) => message.reply(content),
+        deferReply: async () => message.channel.sendTyping(),
+        editReply: (content) => message.reply(content),
+        guild: message.guild,
+        member: message.member,
+        channel: message.channel,
+        options: {
+          get: () => null,
+          getString: () => null,
+          getUser: () => null,
+          getMember: () => null
+        }
+      };
+
+      await command.callback(client, fakeInteraction);
+    } catch (error) {
+      console.error(error);
+      message.reply('There was an error executing that command.');
+    }
+  }
 });
 
 client.login(process.env.TOKEN).catch(console.error);
