@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const { Client, IntentsBitField } = require('discord.js');
 const eventHandler = require('./handlers/eventHandler');
@@ -24,7 +23,7 @@ client.on('messageCreate', async (message) => {
     const args = message.content.slice(botMention.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
-    const command = client.commands.get(commandName);
+    const command = client.commands?.find(cmd => cmd.name === commandName);
     if (!command) return;
 
     try {
