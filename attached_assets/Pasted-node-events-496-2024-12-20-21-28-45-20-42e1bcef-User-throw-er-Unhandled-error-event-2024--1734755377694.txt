@@ -1,0 +1,79 @@
+node:events:496
+2024-12-20 21:28:45.20
+42e1bcef
+User
+throw er; // Unhandled 'error' event
+2024-12-20 21:28:45.20
+42e1bcef
+User
+^
+2024-12-20 21:28:45.20
+42e1bcef
+User
+2024-12-20 21:28:45.20
+42e1bcef
+User
+TypeError: Cannot read properties of undefined (reading 'get')
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at Client. (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/src/bot.js:27:37)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at Client.emit (node:events:530:35)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at MessageCreateAction.handle (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/discord.js/src/client/actions/MessageCreate.js:32:14)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at module.exports [as MESSAGE_CREATE] (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/discord.js/src/client/websocket/handlers/MESSAGE_CREATE.js:4:32)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at WebSocketManager.handlePacket (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/discord.js/src/client/websocket/WebSocketManager.js:348:31)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at WebSocketManager. (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/discord.js/src/client/websocket/WebSocketManager.js:232:12)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at WebSocketManager.emit (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:287:31)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at WebSocketShard. (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/@discordjs/ws/dist/index.js:1190:51)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at WebSocketShard.emit (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:287:31)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at WebSocketShard.onMessage (/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/node_modules/@discordjs/ws/dist/index.js:1005:14)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+Emitted 'error' event on Client instance at:
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at emitUnhandledRejectionOrErr (node:events:401:10)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:84:21)
+2024-12-20 21:28:45.20
+42e1bcef
+User
+2024-12-20 21:28:45.20
+42e1bcef
+User
+Node.js v20.18.1
+2024-12-20 21:28:45.22
+42e1bcef
+System
+command finished with error [sh -c node src/bot.js]: exit status 1

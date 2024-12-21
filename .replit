@@ -6,7 +6,7 @@ run = "node src/index.js"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "node src/index.js"]
+run = ["sh", "-c", "node src/bot.js"]
 deploymentTarget = "gce"
 ignorePorts = true
 
