@@ -1,36 +1,23 @@
 
+const { ShardingManager } = require('discord.js');
 require('dotenv').config();
-const { Client, IntentsBitField } = require('discord.js');
-const eventHandler = require('./handlers/eventHandler');
 
-const client = new Client({
-  intents: [
-    IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildMembers,
-    IntentsBitField.Flags.GuildMessages,
-    IntentsBitField.Flags.GuildPresences,
-    IntentsBitField.Flags.MessageContent,
-  ],
+// Create sharding manager
+const manager = new ShardingManager('./src/bot.js', {
+  token: process.env.TOKEN,
+  totalShards: 'auto',
+  respawn: true,
 });
 
-eventHandler(client);
-
-client.on('messageCreate', async (message) => {
-  if (message.author.bot) return;
-  // Your message handling logic here
+// Shard events
+manager.on('shardCreate', (shard) => {
+  console.log(`Launched shard ${shard.id}`);
 });
 
 // Initialize Express server
-const app = require('../server');
+const app = require('./server');
 app.listen(8080, '0.0.0.0', () => {
   console.log('Server running on port 8080');
 });
 
-(async () => {
-  try {
-    await client.login(process.env.TOKEN);
-    console.log('Bot is online!');
-  } catch (error) {
-    console.log(`Error: ${error}`);
-  }
-})();
+manager.spawn();
