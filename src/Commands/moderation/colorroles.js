@@ -19,7 +19,7 @@ module.exports = {
       { name: '🧡 Orange', color: '#FFA500', emoji: '🧡' },
       { name: '🤎 Brown', color: '#8B4513', emoji: '🤎' },
       { name: '🤍 White', color: '#FFFFFF', emoji: '🤍' },
-      { name: '🖤 Black', color: '#000000', emoji: '🖤' },
+      { name: '🖤 Black', color: '#050000', emoji: '🖤' },
       { name: '💗 Pink', color: '#FFC0CB', emoji: '💗' }
     ];
 
