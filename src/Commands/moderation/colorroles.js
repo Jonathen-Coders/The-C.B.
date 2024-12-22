@@ -34,7 +34,12 @@ module.exports = {
       { name: '🤎 Brown', color: '#8B4513', emoji: '🤎' },
       { name: '🤍 White', color: '#FFFFFF', emoji: '🤍' },
       { name: '🖤 Black', color: '#050000', emoji: '🖤' },
-      { name: '💗 Pink', color: '#FFC0CB', emoji: '💗' }
+      { name: '💗 Pink', color: '#FFC0CB', emoji: '💗' },
+      { name: '💚 Mint', color: '#98FF98', emoji: '💚' },
+      { name: '💙 Sky Blue', color: '#87CEEB', emoji: '💙' },
+      { name: '🔮 Lavender', color: '#E6E6FA', emoji: '🔮' },
+      { name: '🌺 Rose', color: '#FF69B4', emoji: '🌺' },
+      { name: '🌊 Teal', color: '#008080', emoji: '🌊' }
     ];
 
     try {
