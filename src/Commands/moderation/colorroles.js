@@ -4,11 +4,25 @@ const { ApplicationCommandOptionType, PermissionFlagsBits, EmbedBuilder, ActionR
 module.exports = {
   name: 'colorroles',
   description: 'Creates color roles and generates a selection message',
+  options: [
+    {
+      name: 'user',
+      description: 'User to assign color role to (owner only)',
+      type: ApplicationCommandOptionType.User,
+      required: false,
+    }
+  ],
   permissionsRequired: [PermissionFlagsBits.ManageRoles],
   botPermissions: [PermissionFlagsBits.ManageRoles],
 
   callback: async (client, interaction) => {
     await interaction.deferReply();
+    
+    const targetUser = interaction.options.getUser('user');
+    if (targetUser && interaction.user.id !== interaction.guild.ownerId) {
+      await interaction.editReply('Only the server owner can set colors for other users.');
+      return;
+    }
 
     const colors = [
       { name: '🔴 Red', color: '#FF0000', emoji: '🔴' },
@@ -81,7 +95,7 @@ module.exports = {
         const colorName = i.customId.replace('color_', '');
         const role = interaction.guild.roles.cache.find(r => r.name === colorName);
         
-        const member = i.member;
+        const member = targetUser ? await interaction.guild.members.fetch(targetUser.id) : i.member;
         const hasRole = member.roles.cache.has(role.id);
 
         try {
