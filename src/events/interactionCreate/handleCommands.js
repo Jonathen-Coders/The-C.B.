@@ -1,5 +1,6 @@
 const { devs, testServer } = require('../../../config.json');
 const getLocalCommands = require('../../utils/getLocalCommands');
+const { logAction } = require('../../utils/logger'); // Added logger import
 
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
@@ -65,8 +66,20 @@ module.exports = async (client, interaction) => {
     // Execute the command
     if (commandObject.execute) {
       await commandObject.execute(client, interaction);
+      // Log the command usage
+      await logAction(
+        client,
+        'Command Executed',
+        `Command: ${commandObject.name}\nUser: ${interaction.user.tag}\nServer: ${interaction.guild.name || 'DM'}` //Added DM handling and used commandObject instead of command.
+      );
     } else if (commandObject.callback) {
       await commandObject.callback(client, interaction);
+      // Log the command usage
+      await logAction(
+        client,
+        'Command Executed',
+        `Command: ${commandObject.name}\nUser: ${interaction.user.tag}\nServer: ${interaction.guild.name || 'DM'}` //Added DM handling and used commandObject instead of command.
+      );
     } else {
       throw new Error('Command does not have an execute or callback function.');
     }
