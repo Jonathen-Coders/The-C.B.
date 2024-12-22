@@ -39,7 +39,7 @@ module.exports = {
         await i.reply({ content: '⚠️ Restarting bot and redeploying...', ephemeral: true });
         
         // Register any new commands
-        exec('node src/register-commands.js', async (error) => {
+        exec('node src/events/ready/01registerCommands.js', async (error) => {
           if (error) {
             console.error('Error registering commands:', error);
             return;
