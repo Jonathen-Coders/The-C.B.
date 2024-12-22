@@ -1,0 +1,102 @@
+Error registering commands: Error: Command failed: node src/register-commands.js
+2024-12-21 20:25:10.17
+f5588bee
+User
+node:internal/modules/cjs/loader:1228
+2024-12-21 20:25:10.17
+f5588bee
+User
+throw err;
+2024-12-21 20:25:10.17
+f5588bee
+User
+^
+2024-12-21 20:25:10.17
+f5588bee
+User
+2024-12-21 20:25:10.17
+f5588bee
+User
+Error: Cannot find module '/home/runner/68288376-f3b2-4d93-9c6e-e406eb5f1945/src/register-commands.js'
+2024-12-21 20:25:10.17
+f5588bee
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at Module._load (node:internal/modules/cjs/loader:1051:27)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:173:12)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at node:internal/main/run_main_module:28:49 {
+2024-12-21 20:25:10.17
+f5588bee
+User
+code: 'MODULE_NOT_FOUND',
+2024-12-21 20:25:10.17
+f5588bee
+User
+requireStack: []
+2024-12-21 20:25:10.17
+f5588bee
+User
+}
+2024-12-21 20:25:10.17
+f5588bee
+User
+2024-12-21 20:25:10.17
+f5588bee
+User
+Node.js v20.18.1
+2024-12-21 20:25:10.17
+f5588bee
+User
+2024-12-21 20:25:10.17
+f5588bee
+User
+at genericNodeError (node:internal/errors:984:15)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at wrappedFn (node:internal/errors:538:14)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at ChildProcess.exithandler (node:child_process:422:12)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at ChildProcess.emit (node:events:518:28)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at maybeClose (node:internal/child_process:1104:16)
+2024-12-21 20:25:10.17
+f5588bee
+User
+at ChildProcess._handle.onexit (node:internal/child_process:304:5) {
+2024-12-21 20:25:10.17
+f5588bee
+User
+code: 1,
+2024-12-21 20:25:10.17
+f5588bee
+User
+killed: false,
+2024-12-21 20:25:10.17
+f5588bee
+User
+signal: null,
+2024-12-21 20:25:10.17
+f5588bee
+User
+cmd: 'node src/register-commands.js'
+2024-12-21 20:25:10.17
+f5588bee
+User
+}
