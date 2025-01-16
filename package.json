@@ -27,7 +27,7 @@
     "openai": "^4.69.0",
     "passport": "^0.7.0",
     "passport-discord": "^0.1.4",
-    "pretty-ms": "^9.0.0",
+    "pretty-ms": "^9.2.0",
     "replit": "^0.3.1"
   }
 }
