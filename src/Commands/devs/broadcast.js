@@ -3,7 +3,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
   name: 'broadcast',
-  description: 'Send a message to all servers',
+  description: 'Send a message to all servers in a dedicated channel that is made',
   devOnly: true,
   options: [
     {
