@@ -23,12 +23,37 @@ module.exports = {
 
     for (const guild of client.guilds.cache.values()) {
       try {
-        // Try to send to the first available text channel
-        const channel = guild.channels.cache
-          .find(channel => channel.type === 0 && 
-                channel.permissionsFor(guild.members.me)
-                .has(['SendMessages', 'ViewChannel']));
-                
+        let channel = guild.channels.cache.find(ch => 
+          ch.name === 'bot-announcements' && 
+          ch.type === 0
+        );
+
+        // Create the channel if it doesn't exist
+        if (!channel) {
+          try {
+            channel = await guild.channels.create({
+              name: 'bot-announcements',
+              type: 0, // Text channel
+              topic: 'Official announcements from the bot',
+              permissionOverwrites: [
+                {
+                  id: guild.id, // @everyone role
+                  allow: ['ViewChannel'],
+                  deny: ['SendMessages']
+                },
+                {
+                  id: client.user.id, // Bot's ID
+                  allow: ['ViewChannel', 'SendMessages']
+                }
+              ]
+            });
+          } catch (error) {
+            console.error(`Failed to create channel in ${guild.name}:`, error);
+            failCount++;
+            continue;
+          }
+        }
+
         if (channel) {
           await channel.send(message);
           successCount++;
