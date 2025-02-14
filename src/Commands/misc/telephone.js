@@ -1,5 +1,12 @@
 
 const { ApplicationCommandOptionType, PermissionFlagsBits, ChannelType } = require('discord.js');
+const { 
+  joinVoiceChannel, 
+  createAudioPlayer, 
+  createAudioResource,
+  StreamType,
+  VoiceConnectionStatus
+} = require('@discordjs/voice');
 
 module.exports = {
   name: 'telephone',
@@ -73,27 +80,36 @@ module.exports = {
         return interaction.reply({ content: 'One of the servers is already in a call!', ephemeral: true });
       }
 
-      client.activePhoneCalls.set(interaction.guildId, targetServerId);
-      client.activePhoneCalls.set(targetServerId, interaction.guildId);
-
-      // Create call connection
       try {
-        const connection1 = await sourceChannel.join();
-        const connection2 = await targetChannel.join();
-        
-        // Connect audio streams
-        connection1.on('speaking', (user, speaking) => {
-          if (speaking) {
-            const audioStream = connection1.receiver.createStream(user);
-            connection2.play(audioStream);
-          }
+        const connection1 = joinVoiceChannel({
+          channelId: sourceChannel.id,
+          guildId: interaction.guildId,
+          adapterCreator: interaction.guild.voiceAdapterCreator,
         });
 
-        connection2.on('speaking', (user, speaking) => {
-          if (speaking) {
-            const audioStream = connection2.receiver.createStream(user);
-            connection1.play(audioStream);
-          }
+        const connection2 = joinVoiceChannel({
+          channelId: targetChannel.id,
+          guildId: targetServerId,
+          adapterCreator: targetGuild.voiceAdapterCreator,
+        });
+
+        const player1 = createAudioPlayer();
+        const player2 = createAudioPlayer();
+
+        connection1.subscribe(player1);
+        connection2.subscribe(player2);
+
+        // Store connections for cleanup
+        client.activePhoneCalls.set(interaction.guildId, {
+          targetId: targetServerId,
+          connection: connection1,
+          player: player1
+        });
+
+        client.activePhoneCalls.set(targetServerId, {
+          targetId: interaction.guildId,
+          connection: connection2,
+          player: player2
         });
 
         await interaction.reply({ content: `📞 Connected to ${targetGuild.name}!`, ephemeral: false });
@@ -107,23 +123,23 @@ module.exports = {
     }
 
     if (subcommand === 'hangup') {
-      const currentCall = client.activePhoneCalls?.get(interaction.guildId);
+      const callData = client.activePhoneCalls?.get(interaction.guildId);
       
-      if (!currentCall) {
+      if (!callData) {
         return interaction.reply({ content: 'No active call to hang up!', ephemeral: true });
       }
 
-      const sourceChannel = interaction.guild.channels.cache.find(ch => ch.name === 'phone-booth');
-      const targetGuild = client.guilds.cache.get(currentCall);
-      const targetChannel = targetGuild?.channels.cache.find(ch => ch.name === 'phone-booth');
+      const targetCallData = client.activePhoneCalls?.get(callData.targetId);
 
-      if (sourceChannel) sourceChannel.leave();
-      if (targetChannel) targetChannel.leave();
+      if (callData.connection) callData.connection.destroy();
+      if (targetCallData?.connection) targetCallData.connection.destroy();
 
       client.activePhoneCalls.delete(interaction.guildId);
-      client.activePhoneCalls.delete(currentCall);
+      client.activePhoneCalls.delete(callData.targetId);
 
       await interaction.reply({ content: '📞 Call ended!', ephemeral: false });
+      const targetGuild = client.guilds.cache.get(callData.targetId);
+      const targetChannel = targetGuild?.channels.cache.find(ch => ch.name === 'phone-booth');
       if (targetChannel) await targetChannel.send('📞 Call ended by other server.');
     }
   },
