@@ -5,7 +5,8 @@ const {
   createAudioPlayer, 
   createAudioResource,
   StreamType,
-  VoiceConnectionStatus
+  VoiceConnectionStatus,
+  entersState
 } = require('@discordjs/voice');
 
 module.exports = {
@@ -87,10 +88,38 @@ module.exports = {
           adapterCreator: interaction.guild.voiceAdapterCreator,
         });
 
+        connection1.on(VoiceConnectionStatus.Disconnected, async () => {
+          try {
+            await Promise.race([
+              entersState(connection1, VoiceConnectionStatus.Signalling, 5_000),
+              entersState(connection1, VoiceConnectionStatus.Connecting, 5_000),
+            ]);
+          } catch (error) {
+            connection1.destroy();
+            if (client.activePhoneCalls?.has(interaction.guildId)) {
+              client.activePhoneCalls.delete(interaction.guildId);
+            }
+          }
+        });
+
         const connection2 = joinVoiceChannel({
           channelId: targetChannel.id,
           guildId: targetServerId,
           adapterCreator: targetGuild.voiceAdapterCreator,
+        });
+
+        connection2.on(VoiceConnectionStatus.Disconnected, async () => {
+          try {
+            await Promise.race([
+              entersState(connection2, VoiceConnectionStatus.Signalling, 5_000),
+              entersState(connection2, VoiceConnectionStatus.Connecting, 5_000),
+            ]);
+          } catch (error) {
+            connection2.destroy();
+            if (client.activePhoneCalls?.has(targetServerId)) {
+              client.activePhoneCalls.delete(targetServerId);
+            }
+          }
         });
 
         const player1 = createAudioPlayer();
