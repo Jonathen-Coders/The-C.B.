@@ -70,7 +70,8 @@ module.exports = async (client, interaction) => {
       await logAction(
         client,
         'Command Executed',
-        `Command: ${commandObject.name}\nUser: ${interaction.user.tag}\nServer: ${interaction.guild.name || 'DM'}` //Added DM handling and used commandObject instead of command.
+        'Command executed successfully',
+        interaction
       );
     } else if (commandObject.callback) {
       await commandObject.callback(client, interaction);
@@ -78,7 +79,8 @@ module.exports = async (client, interaction) => {
       await logAction(
         client,
         'Command Executed',
-        `Command: ${commandObject.name}\nUser: ${interaction.user.tag}\nServer: ${interaction.guild.name || 'DM'}` //Added DM handling and used commandObject instead of command.
+        'Command executed successfully',
+        interaction
       );
     } else {
       throw new Error('Command does not have an execute or callback function.');
