@@ -130,29 +130,41 @@ module.exports = {
 
         // Forward audio between connections
         connection1.receiver.speaking.on('start', (userId) => {
-          const audioStream = connection1.receiver.subscribe(userId, {
-            end: {
-              behavior: EndBehaviorType.AfterSilence,
-              duration: 100,
-            },
-          });
-          const resource = createAudioResource(audioStream, {
-            inputType: StreamType.Opus,
-          });
-          player2.play(resource);
+          try {
+            const audioStream = connection1.receiver.subscribe(userId, {
+              end: {
+                behavior: EndBehaviorType.AfterSilence,
+                duration: 500,
+              },
+            });
+            const resource = createAudioResource(audioStream, {
+              inputType: StreamType.Opus,
+              inlineVolume: true,
+            });
+            resource.volume.setVolume(1.5);
+            player2.play(resource);
+          } catch (error) {
+            console.error('Error forwarding audio from connection1:', error);
+          }
         });
 
         connection2.receiver.speaking.on('start', (userId) => {
-          const audioStream = connection2.receiver.subscribe(userId, {
-            end: {
-              behavior: EndBehaviorType.AfterSilence,
-              duration: 100,
-            },
-          });
-          const resource = createAudioResource(audioStream, {
-            inputType: StreamType.Opus,
-          });
-          player1.play(resource);
+          try {
+            const audioStream = connection2.receiver.subscribe(userId, {
+              end: {
+                behavior: EndBehaviorType.AfterSilence,
+                duration: 500,
+              },
+            });
+            const resource = createAudioResource(audioStream, {
+              inputType: StreamType.Opus,
+              inlineVolume: true,
+            });
+            resource.volume.setVolume(1.5);
+            player1.play(resource);
+          } catch (error) {
+            console.error('Error forwarding audio from connection2:', error);
+          }
         });
 
         // Store connections for cleanup
