@@ -1,4 +1,3 @@
-
 const { ApplicationCommandOptionType, PermissionFlagsBits, ChannelType } = require('discord.js');
 const { 
   joinVoiceChannel, 
@@ -48,7 +47,7 @@ module.exports = {
       }
 
       let phoneChannel = interaction.guild.channels.cache.find(ch => ch.name === 'phone-booth');
-      
+
       if (!phoneChannel) {
         phoneChannel = await interaction.guild.channels.create({
           name: 'phone-booth',
@@ -76,7 +75,7 @@ module.exports = {
 
       // Store call state
       client.activePhoneCalls = client.activePhoneCalls || new Map();
-      
+
       if (client.activePhoneCalls.has(interaction.guildId) || client.activePhoneCalls.has(targetServerId)) {
         return interaction.reply({ content: 'One of the servers is already in a call!', ephemeral: true });
       }
@@ -156,9 +155,15 @@ module.exports = {
             const resource = createAudioResource(audioStream, {
               inputType: StreamType.Opus,
               inlineVolume: true,
+              silencePaddingFrames: 0,
             });
-            
-            resource.volume?.setVolume(1.5);
+
+            resource.volume?.setVolume(2);
+
+            resource.playStream.on('error', error => {
+              console.error('Audio stream playback error:', error);
+              player2.stop();
+            });
             player2.play(resource);
           } catch (error) {
             console.error('Error forwarding audio from connection1:', error);
@@ -190,9 +195,15 @@ module.exports = {
             const resource = createAudioResource(audioStream, {
               inputType: StreamType.Opus,
               inlineVolume: true,
+              silencePaddingFrames: 0,
             });
-            
-            resource.volume?.setVolume(1.5);
+
+            resource.volume?.setVolume(2);
+
+            resource.playStream.on('error', error => {
+              console.error('Audio stream playback error:', error);
+              player1.stop();
+            });
             player1.play(resource);
           } catch (error) {
             console.error('Error forwarding audio from connection2:', error);
@@ -239,7 +250,7 @@ module.exports = {
 
     if (subcommand === 'hangup') {
       const callData = client.activePhoneCalls?.get(interaction.guildId);
-      
+
       if (!callData) {
         return interaction.reply({ content: 'No active call to hang up!', ephemeral: true });
       }
