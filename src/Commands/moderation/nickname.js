@@ -1,3 +1,4 @@
+
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
@@ -5,60 +6,91 @@ module.exports = {
     description: 'Change nickname across all servers where the bot and user are members',
     options: [
         {
-            name: 'newnick',
-            description: 'The new nickname',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-        },
-        {
             name: 'user',
             description: 'The user whose nickname to change',
             type: ApplicationCommandOptionType.User,
             required: true,
         },
+        {
+            name: 'newnick',
+            description: 'The new nickname (leave empty to reset)',
+            type: ApplicationCommandOptionType.String,
+            required: false,
+        },
     ],
+    permissionsRequired: [PermissionFlagsBits.ManageNicknames],
+    botPermissions: [PermissionFlagsBits.ManageNicknames],
+    
     callback: async (client, interaction) => {
         try {
-            console.log('Interaction received:', interaction);
+            const targetUser = interaction.options.getUser('user');
+            const newNickname = interaction.options.getString('newnick') || null;
 
-            // Check if the user has the necessary permissions
-            if (!interaction.member.permissions.has(PermissionFlagsBits.ManageNicknames)) {
-                return interaction.reply('You do not have permission to change nicknames.');
+            if (!targetUser) {
+                return interaction.reply({
+                    content: 'Could not find that user.',
+                    ephemeral: true
+                });
             }
 
-            // Get the new nickname from the command options
-            const user = interaction.options.getMember('user');
-            const newNickname = interaction.options.getString('newnick');
+            await interaction.deferReply({ ephemeral: true });
 
-            // Check if the user is the owner of the guild
-            if (user.id === interaction.guild.ownerId) {
-                return interaction.reply('I cannot change the nickname of the guild owner. As the Owner, you can change your nickname manually via /nick(built in system for discord). But I can change the nickname of other members. Please try again with a different user. The guild owner has full immunity of any and all moderation commands inflicted by the bots.');
-            }
+            let successCount = 0;
+            let failCount = 0;
+            const failedGuilds = [];
 
-            // Iterate over all guilds the bot is in
-            const promises = client.guilds.cache.map(async (guild) => {
+            // Process all guilds the bot is in
+            for (const [, guild] of client.guilds.cache) {
                 try {
-                    // Fetch the member in the guild
-                    const member = await guild.members.fetch(user.id);
-                    if (member) {
-                        // Change the nickname in the guild
-                        await member.setNickname(newNickname);
+                    const member = await guild.members.fetch(targetUser.id).catch(() => null);
+                    if (!member) continue;
+
+                    // Skip if target is guild owner
+                    if (member.id === guild.ownerId) {
+                        failCount++;
+                        failedGuilds.push(`${guild.name} (Server owner)`);
+                        continue;
                     }
+
+                    // Check bot's permissions in this guild
+                    const botMember = guild.members.me;
+                    if (!botMember.permissions.has(PermissionFlagsBits.ManageNicknames) ||
+                        botMember.roles.highest.position <= member.roles.highest.position) {
+                        failCount++;
+                        failedGuilds.push(`${guild.name} (Insufficient permissions)`);
+                        continue;
+                    }
+
+                    await member.setNickname(newNickname);
+                    successCount++;
                 } catch (error) {
-                    // Ignore errors for guilds where the user is not a member
-                    if (error.code !== 10007) { // 10007: Unknown Member
-                        console.error(`Error changing nickname in guild ${guild.id}:`, error);
-                    }
+                    console.error(`Error in guild ${guild.name}:`, error);
+                    failCount++;
+                    failedGuilds.push(`${guild.name} (Error occurred)`);
                 }
+            }
+
+            let response = `Nickname change complete!\n✅ Successfully changed in ${successCount} servers`;
+            if (failCount > 0) {
+                response += `\n❌ Failed in ${failCount} servers:`;
+                response += `\n${failedGuilds.map(g => `- ${g}`).join('\n')}`;
+            }
+
+            await interaction.editReply({
+                content: response,
+                ephemeral: true
             });
 
-            // Wait for all nickname changes to complete
-            await Promise.all(promises);
-
-            interaction.reply(`Nickname changed to "${newNickname}" for ${user.user.tag} in all servers where the bot and user are members.`);
         } catch (error) {
-            console.error('Error changing nickname:', error);
-            interaction.reply('An error occurred while changing the nickname.');
+            console.error('Error in nickname command:', error);
+            const reply = interaction.deferred ? 
+                interaction.editReply : 
+                interaction.reply;
+            
+            await reply({
+                content: 'An error occurred while changing nicknames.',
+                ephemeral: true
+            });
         }
     },
 };
