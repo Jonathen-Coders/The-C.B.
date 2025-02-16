@@ -6,7 +6,8 @@ const {
   createAudioResource,
   StreamType,
   VoiceConnectionStatus,
-  entersState
+  entersState,
+  EndBehaviorType
 } = require('@discordjs/voice');
 
 module.exports = {
@@ -126,6 +127,33 @@ module.exports = {
 
         connection1.subscribe(player1);
         connection2.subscribe(player2);
+
+        // Forward audio between connections
+        connection1.receiver.speaking.on('start', (userId) => {
+          const audioStream = connection1.receiver.subscribe(userId, {
+            end: {
+              behavior: EndBehaviorType.AfterSilence,
+              duration: 100,
+            },
+          });
+          const resource = createAudioResource(audioStream, {
+            inputType: StreamType.Opus,
+          });
+          player2.play(resource);
+        });
+
+        connection2.receiver.speaking.on('start', (userId) => {
+          const audioStream = connection2.receiver.subscribe(userId, {
+            end: {
+              behavior: EndBehaviorType.AfterSilence,
+              duration: 100,
+            },
+          });
+          const resource = createAudioResource(audioStream, {
+            inputType: StreamType.Opus,
+          });
+          player1.play(resource);
+        });
 
         // Store connections for cleanup
         client.activePhoneCalls.set(interaction.guildId, {
