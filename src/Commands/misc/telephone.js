@@ -51,8 +51,7 @@ module.exports = {
       if (!phoneChannel) {
         phoneChannel = await interaction.guild.channels.create({
           name: 'phone-booth',
-          type: ChannelType.GuildVoice,
-          topic: 'Phone booth for inter-server calls'
+          type: ChannelType.GuildVoice
         });
       }
 
