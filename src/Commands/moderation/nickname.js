@@ -70,9 +70,13 @@ module.exports = {
                 }
             }
 
-            let response = `Nickname change complete!\n✅ Successfully changed in ${successCount} servers`;
+            // Don't show "complete" if we had any successes
+            let response = successCount > 0 ? 
+                `✅ Successfully changed nickname in ${successCount} server${successCount !== 1 ? 's' : ''}` : 
+                `⚠️ No successful nickname changes`;
+                
             if (failCount > 0) {
-                response += `\n❌ Failed in ${failCount} servers:`;
+                response += `\n❌ Could not change in ${failCount} server${failCount !== 1 ? 's' : ''}:`;
                 response += `\n${failedGuilds.map(g => `- ${g}`).join('\n')}`;
             }
 
