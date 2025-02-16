@@ -129,19 +129,36 @@ module.exports = {
         connection2.subscribe(player2);
 
         // Forward audio between connections
+        let activeStreams = new Map();
+
         connection1.receiver.speaking.on('start', (userId) => {
           try {
+            // Cleanup previous stream if exists
+            if (activeStreams.has(userId)) {
+              activeStreams.get(userId).destroy();
+              activeStreams.delete(userId);
+            }
+
             const audioStream = connection1.receiver.subscribe(userId, {
               end: {
-                behavior: EndBehaviorType.AfterSilence,
-                duration: 500,
+                behavior: EndBehaviorType.Manual,
               },
             });
+
+            activeStreams.set(userId, audioStream);
+
+            audioStream.on('error', (error) => {
+              console.error('Audio stream error:', error);
+              audioStream.destroy();
+              activeStreams.delete(userId);
+            });
+
             const resource = createAudioResource(audioStream, {
               inputType: StreamType.Opus,
               inlineVolume: true,
             });
-            resource.volume.setVolume(1.5);
+            
+            resource.volume?.setVolume(1.5);
             player2.play(resource);
           } catch (error) {
             console.error('Error forwarding audio from connection1:', error);
@@ -150,20 +167,50 @@ module.exports = {
 
         connection2.receiver.speaking.on('start', (userId) => {
           try {
+            // Cleanup previous stream if exists
+            if (activeStreams.has(userId)) {
+              activeStreams.get(userId).destroy();
+              activeStreams.delete(userId);
+            }
+
             const audioStream = connection2.receiver.subscribe(userId, {
               end: {
-                behavior: EndBehaviorType.AfterSilence,
-                duration: 500,
+                behavior: EndBehaviorType.Manual,
               },
             });
+
+            activeStreams.set(userId, audioStream);
+
+            audioStream.on('error', (error) => {
+              console.error('Audio stream error:', error);
+              audioStream.destroy();
+              activeStreams.delete(userId);
+            });
+
             const resource = createAudioResource(audioStream, {
               inputType: StreamType.Opus,
               inlineVolume: true,
             });
-            resource.volume.setVolume(1.5);
+            
+            resource.volume?.setVolume(1.5);
             player1.play(resource);
           } catch (error) {
             console.error('Error forwarding audio from connection2:', error);
+          }
+        });
+
+        // Cleanup streams when users stop speaking
+        connection1.receiver.speaking.on('end', (userId) => {
+          if (activeStreams.has(userId)) {
+            activeStreams.get(userId).destroy();
+            activeStreams.delete(userId);
+          }
+        });
+
+        connection2.receiver.speaking.on('end', (userId) => {
+          if (activeStreams.has(userId)) {
+            activeStreams.get(userId).destroy();
+            activeStreams.delete(userId);
           }
         });
 
