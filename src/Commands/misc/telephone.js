@@ -36,6 +36,19 @@ module.exports = {
       description: 'Set up the telephone channel',
       type: ApplicationCommandOptionType.Subcommand,
     },
+    {
+      name: 'move',
+      description: 'Move users to the phone booth channel',
+      type: ApplicationCommandOptionType.Subcommand,
+      options: [
+        {
+          name: 'user',
+          description: 'User to move to phone booth (leave empty to move all users)',
+          type: ApplicationCommandOptionType.User,
+          required: false,
+        },
+      ],
+    },
   ],
 
   callback: async (client, interaction) => {
@@ -267,6 +280,90 @@ module.exports = {
       const targetGuild = client.guilds.cache.get(callData.targetId);
       const targetChannel = targetGuild?.channels.cache.find(ch => ch.name === 'phone-booth');
       if (targetChannel) await targetChannel.send('📞 Call ended by other server.');
+    }
+    
+    if (subcommand === 'move') {
+      // Check if user has proper permissions
+      if (!interaction.member.permissions.has(PermissionFlagsBits.MoveMembers)) {
+        return interaction.reply({ 
+          content: 'You need Move Members permission to move users.', 
+          ephemeral: true 
+        });
+      }
+      
+      // Check if the bot has proper permissions
+      if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.MoveMembers)) {
+        return interaction.reply({ 
+          content: 'I need Move Members permission to move users.', 
+          ephemeral: true 
+        });
+      }
+      
+      // Find phone booth channel
+      const phoneBoothChannel = interaction.guild.channels.cache.find(
+        ch => ch.name === 'phone-booth' && ch.type === ChannelType.GuildVoice
+      );
+      
+      if (!phoneBoothChannel) {
+        return interaction.reply({ 
+          content: 'Phone booth channel not found. Please set it up first with `/telephone setup`.', 
+          ephemeral: true 
+        });
+      }
+      
+      const targetUser = interaction.options.getUser('user');
+      let movedCount = 0;
+      let failedCount = 0;
+      
+      try {
+        await interaction.deferReply();
+        
+        if (targetUser) {
+          // Move a specific user
+          const guildMember = await interaction.guild.members.fetch(targetUser.id);
+          
+          if (!guildMember.voice.channelId) {
+            return interaction.editReply(`${targetUser.username} is not in a voice channel.`);
+          }
+          
+          if (guildMember.voice.channelId === phoneBoothChannel.id) {
+            return interaction.editReply(`${targetUser.username} is already in the phone booth.`);
+          }
+          
+          await guildMember.voice.setChannel(phoneBoothChannel.id);
+          return interaction.editReply(`Moved ${targetUser.username} to the phone booth.`);
+        } else {
+          // Move all users in voice channels (except those already in phone booth)
+          const voiceChannels = interaction.guild.channels.cache.filter(
+            ch => ch.type === ChannelType.GuildVoice && ch.id !== phoneBoothChannel.id
+          );
+          
+          for (const [_, channel] of voiceChannels) {
+            for (const [memberId, member] of channel.members) {
+              try {
+                await member.voice.setChannel(phoneBoothChannel.id);
+                movedCount++;
+              } catch (error) {
+                failedCount++;
+                console.error(`Failed to move member ${memberId}:`, error);
+              }
+            }
+          }
+          
+          if (movedCount === 0 && failedCount === 0) {
+            return interaction.editReply('No users found in other voice channels to move.');
+          }
+          
+          let response = `Successfully moved ${movedCount} user(s) to the phone booth.`;
+          if (failedCount > 0) {
+            response += ` Failed to move ${failedCount} user(s).`;
+          }
+          return interaction.editReply(response);
+        }
+      } catch (error) {
+        console.error('Error moving users:', error);
+        return interaction.editReply('There was an error moving users to the phone booth.');
+      }
     }
   },
 };
