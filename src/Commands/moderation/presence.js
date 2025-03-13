@@ -71,7 +71,7 @@ module.exports = {
 
             // Get the status, activity type, and status message from the command options
             const status = interaction.options.getString('status').toLowerCase();
-            const activityType = interaction.options.getString('activity').toUpperCase();
+            const activityType = interaction.options.getString('activity');
             const statusMessage = interaction.options.getString('message');
 
             // Set the bot's presence
@@ -79,7 +79,7 @@ module.exports = {
                 activities: [
                     {
                         name: statusMessage,
-                        type: ActivityType[activityType] || activityType,
+                        type: ActivityType[activityType],
                     },
                 ],
                 status: status,  // online, idle, or dnd

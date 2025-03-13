@@ -80,7 +80,7 @@ module.exports = {
                         type: ActivityType[activityType],
                     },
                 ],
-                status: status.toLowerCase(),  // online, idle, dnd, or invisible
+                status: status,  // online, idle, dnd, or invisible
             });
 
             await interaction.reply({
