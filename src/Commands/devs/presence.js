@@ -12,6 +12,10 @@ module.exports = {
             required: true,
             choices: [
                 {
+                    name: "Default",
+                    value: "default",
+                },
+                {
                     name: "Online",
                     value: "online",
                 },
@@ -68,26 +72,42 @@ module.exports = {
         try {
             // Get the status, activity type, and status message from the command options
             const status = interaction.options.getString("status");
+            
+            // Handle default status
+            if (status === "default") {
+                await client.user.setPresence({
+                    activities: [],
+                    status: "online"
+                });
+                
+                await interaction.reply({
+                    content: `✅ Bot's presence reset to default`,
+                    ephemeral: true,
+                });
+                console.log(`Bot's presence reset to default`);
+                return;
+            }
+            
             const activityType = interaction.options.getString("activity");
             const statusMessage = interaction.options.getString("message");
 
             // Set the bot's presence
             await client.user.setPresence({
-                activities: [
+                activities: activityType && statusMessage ? [
                     {
                         name: statusMessage,
                         type: ActivityType[activityType],
                     },
-                ],
+                ] : [],
                 status: status, // online, idle, dnd, or invisible
             });
 
             await interaction.reply({
-                content: `✅ Bot's presence set to: ${status} - ${activityType} ${statusMessage}`,
+                content: `✅ Bot's presence set to: ${status}${activityType && statusMessage ? ` - ${activityType} ${statusMessage}` : ''}`,
                 ephemeral: true,
             });
             console.log(
-                `Bot's presence set to: ${status} - ${activityType} ${statusMessage}`,
+                `Bot's presence set to: ${status}${activityType && statusMessage ? ` - ${activityType} ${statusMessage}` : ''}`,
             );
         } catch (error) {
             console.error(error);
