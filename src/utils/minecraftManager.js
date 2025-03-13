@@ -1,6 +1,5 @@
-
+const { EventEmitter } = require('events');
 const { Rcon } = require('rcon-client');
-const EventEmitter = require('events');
 
 class MinecraftManager extends EventEmitter {
     constructor() {
@@ -20,18 +19,18 @@ class MinecraftManager extends EventEmitter {
         try {
             // Create new RCON connection
             this.rcon = new Rcon({ host, port: port || 25575, password });
-            
+
             // Listen for connection events
             this.rcon.on('connect', () => {
                 console.log(`Connected to Minecraft server at ${host}:${port}`);
                 this.emit('connect', { host, port });
             });
-            
+
             this.rcon.on('error', (error) => {
                 console.error('RCON error:', error);
                 this.emit('error', error);
             });
-            
+
             this.rcon.on('end', () => {
                 console.log('RCON connection closed');
                 this.stopLogPolling();
@@ -39,17 +38,17 @@ class MinecraftManager extends EventEmitter {
                 this.serverInfo = null;
                 this.emit('disconnect');
             });
-            
+
             // Connect to the server
             await this.rcon.connect();
-            
+
             // Save connection info
             this.serverInfo = { host, port };
             this.connected = true;
-            
+
             // Start polling for logs
             this.startLogPolling();
-            
+
             return true;
         } catch (error) {
             console.error('Connection error:', error);
@@ -98,13 +97,13 @@ class MinecraftManager extends EventEmitter {
         if (!this.connected || !this.rcon) {
             throw new Error('Not connected to any Minecraft server');
         }
-        
+
         try {
             // Execute multiple commands to get server information
             const playerList = await this.executeCommand('list');
             const tps = await this.executeCommand('tps').catch(() => 'TPS command not available');
             const worldTime = await this.executeCommand('time query daytime').catch(() => 'Unknown');
-            
+
             return {
                 players: playerList,
                 performance: tps,
@@ -159,109 +158,7 @@ class MinecraftManager extends EventEmitter {
     }
 }
 
-module.exports = new MinecraftManager();
-const { Rcon } = require('rcon-client');
+// Create a singleton instance
+const minecraftManager = new MinecraftManager();
 
-class MinecraftManager {
-    constructor() {
-        this.rcon = null;
-        this.serverInfo = null;
-    }
-
-    isConnected() {
-        return this.rcon !== null && this.rcon.connected;
-    }
-
-    async connect(host, port, password) {
-        if (this.isConnected()) {
-            await this.disconnect();
-        }
-
-        try {
-            this.rcon = new Rcon({ host, port, password });
-            
-            // Set up event listeners
-            this.rcon.on('connect', () => {
-                console.log(`Connected to Minecraft server at ${host}:${port}`);
-            });
-            
-            this.rcon.on('error', (error) => {
-                console.error('RCON error:', error);
-            });
-            
-            this.rcon.on('end', () => {
-                console.log('RCON connection closed');
-                this.rcon = null;
-                this.serverInfo = null;
-            });
-            
-            // Connect to the server
-            await this.rcon.connect();
-            
-            // Save connection info
-            this.serverInfo = { host, port };
-            
-            return true;
-        } catch (error) {
-            console.error('Connection error:', error);
-            this.rcon = null;
-            this.serverInfo = null;
-            throw error;
-        }
-    }
-
-    async disconnect() {
-        if (this.isConnected()) {
-            await this.rcon.end();
-            this.rcon = null;
-            this.serverInfo = null;
-            return true;
-        }
-        return false;
-    }
-
-    async getServerStatus() {
-        if (!this.isConnected()) {
-            throw new Error('Not connected to a Minecraft server');
-        }
-
-        try {
-            // Get server info using various commands
-            const [
-                playerList,
-                tps,
-                worldInfo
-            ] = await Promise.all([
-                this.rcon.send('list'),
-                this.rcon.send('tps'),
-                this.rcon.send('time query daytime')
-            ]);
-            
-            return {
-                serverInfo: this.serverInfo,
-                players: playerList || 'Unknown',
-                performance: tps || 'Unknown',
-                worldInfo: worldInfo || 'Unknown'
-            };
-        } catch (error) {
-            console.error('Status error:', error);
-            throw error;
-        }
-    }
-
-    async executeCommand(command) {
-        if (!this.isConnected()) {
-            throw new Error('Not connected to a Minecraft server');
-        }
-
-        try {
-            return await this.rcon.send(command);
-        } catch (error) {
-            console.error('Command error:', error);
-            throw error;
-        }
-    }
-}
-
-// Export a singleton instance
-module.exports = new MinecraftManager();
+module.exports = minecraftManager;
