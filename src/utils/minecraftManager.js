@@ -160,3 +160,108 @@ class MinecraftManager extends EventEmitter {
 }
 
 module.exports = new MinecraftManager();
+const { Rcon } = require('rcon-client');
+
+class MinecraftManager {
+    constructor() {
+        this.rcon = null;
+        this.serverInfo = null;
+    }
+
+    isConnected() {
+        return this.rcon !== null && this.rcon.connected;
+    }
+
+    async connect(host, port, password) {
+        if (this.isConnected()) {
+            await this.disconnect();
+        }
+
+        try {
+            this.rcon = new Rcon({ host, port, password });
+            
+            // Set up event listeners
+            this.rcon.on('connect', () => {
+                console.log(`Connected to Minecraft server at ${host}:${port}`);
+            });
+            
+            this.rcon.on('error', (error) => {
+                console.error('RCON error:', error);
+            });
+            
+            this.rcon.on('end', () => {
+                console.log('RCON connection closed');
+                this.rcon = null;
+                this.serverInfo = null;
+            });
+            
+            // Connect to the server
+            await this.rcon.connect();
+            
+            // Save connection info
+            this.serverInfo = { host, port };
+            
+            return true;
+        } catch (error) {
+            console.error('Connection error:', error);
+            this.rcon = null;
+            this.serverInfo = null;
+            throw error;
+        }
+    }
+
+    async disconnect() {
+        if (this.isConnected()) {
+            await this.rcon.end();
+            this.rcon = null;
+            this.serverInfo = null;
+            return true;
+        }
+        return false;
+    }
+
+    async getServerStatus() {
+        if (!this.isConnected()) {
+            throw new Error('Not connected to a Minecraft server');
+        }
+
+        try {
+            // Get server info using various commands
+            const [
+                playerList,
+                tps,
+                worldInfo
+            ] = await Promise.all([
+                this.rcon.send('list'),
+                this.rcon.send('tps'),
+                this.rcon.send('time query daytime')
+            ]);
+            
+            return {
+                serverInfo: this.serverInfo,
+                players: playerList || 'Unknown',
+                performance: tps || 'Unknown',
+                worldInfo: worldInfo || 'Unknown'
+            };
+        } catch (error) {
+            console.error('Status error:', error);
+            throw error;
+        }
+    }
+
+    async executeCommand(command) {
+        if (!this.isConnected()) {
+            throw new Error('Not connected to a Minecraft server');
+        }
+
+        try {
+            return await this.rcon.send(command);
+        } catch (error) {
+            console.error('Command error:', error);
+            throw error;
+        }
+    }
+}
+
+// Export a singleton instance
+module.exports = new MinecraftManager();

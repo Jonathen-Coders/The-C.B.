@@ -1,3 +1,4 @@
+
 const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
 const minecraftManager = require("../../utils/minecraftManager");
 const { mainServer } = require("../../../config.json");
@@ -39,33 +40,38 @@ module.exports = {
                 case "status":
                     if (minecraftManager.isConnected()) {
                         await interaction.deferReply();
-                        const status = await minecraftManager.getServerStatus();
+                        try {
+                            const status = await minecraftManager.getServerStatus();
 
-                        const embed = new EmbedBuilder()
-                            .setTitle("Minecraft Server Status")
-                            .setDescription(
-                                `Server: ${status.serverInfo.host}:${status.serverInfo.port}`,
-                            )
-                            .addFields(
-                                {
-                                    name: "Players",
-                                    value: status.players || "Unknown",
-                                },
-                                {
-                                    name: "Performance",
-                                    value: status.performance || "Unknown",
-                                },
-                                {
-                                    name: "World Info",
-                                    value: status.worldInfo || "Unknown",
-                                },
-                            )
-                            .setColor("#00FF00")
-                            .setTimestamp();
+                            const embed = new EmbedBuilder()
+                                .setTitle("Minecraft Server Status")
+                                .setDescription(
+                                    `Server: ${status.serverInfo.host}:${status.serverInfo.port}`,
+                                )
+                                .addFields(
+                                    {
+                                        name: "Players",
+                                        value: status.players || "Unknown",
+                                    },
+                                    {
+                                        name: "Performance",
+                                        value: status.performance || "Unknown",
+                                    },
+                                    {
+                                        name: "World Info",
+                                        value: status.worldInfo || "Unknown",
+                                    },
+                                )
+                                .setColor("#00FF00")
+                                .setTimestamp();
 
-                        await interaction.editReply({ embeds: [embed] });
+                            return interaction.editReply({ embeds: [embed] });
+                        } catch (statusError) {
+                            console.error("Status error:", statusError);
+                            return interaction.editReply("Failed to get server status. The server might be offline.");
+                        }
                     } else {
-                        await interaction.reply({
+                        return interaction.reply({
                             content:
                                 "Not connected to the Minecraft server. Ask an admin to connect using the `/mc connect` command.",
                             ephemeral: true,
@@ -98,15 +104,22 @@ module.exports = {
                         .setColor("#00FF00")
                         .setTimestamp();
 
-                    await interaction.reply({ embeds: [embed] });
-                    break;
+                    return interaction.reply({ embeds: [embed] });
             }
         } catch (error) {
-            console.error(error);
-            await interaction.reply({
-                content: `An error occurred: ${error.message}`,
-                ephemeral: true,
-            });
+            console.error("Minecraft command error:", error);
+            
+            // Handle the error differently depending on whether we've deferred the reply
+            if (interaction.deferred) {
+                return interaction.editReply({
+                    content: `An error occurred: ${error.message}`,
+                });
+            } else if (!interaction.replied) {
+                return interaction.reply({
+                    content: `An error occurred: ${error.message}`,
+                    ephemeral: true,
+                });
+            }
         }
     },
 };
