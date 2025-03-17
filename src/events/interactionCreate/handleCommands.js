@@ -1,9 +1,20 @@
 const { devs, testServer } = require('../../../config.json');
 const getLocalCommands = require('../../utils/getLocalCommands');
+const { db } = require('replit');
 const { logAction } = require('../../utils/logger'); // Added logger import
 
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
+
+  const dbKey = `commands_disabled_${interaction.guild.id}`;
+  const disabledCommands = await db.get(dbKey) || [];
+  
+  if (disabledCommands.includes(interaction.commandName)) {
+    return interaction.reply({
+      content: 'This command is disabled in this server.',
+      ephemeral: true
+    });
+  }
 
   const localCommands = getLocalCommands();
 
