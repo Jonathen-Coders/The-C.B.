@@ -47,6 +47,9 @@
 <body>
     <div class="container">
         <h1>Discord Bot Control Panel</h1>
+        <div class="card" id="loginCard">
+            <button onclick="window.replit.auth.login()">Login with Replit</button>
+        </div>
         <div class="card">
             <h2>Bot Status</h2>
             <div id="botStatus" class="status">Checking...</div>
@@ -90,9 +93,14 @@
         const OWNER_ID = '478020355504603136,467808985274384404';
         
         async function checkOwner() {
+            if (!window.replit.auth.user) {
+                document.getElementById('loginCard').style.display = 'block';
+                return;
+            }
+            document.getElementById('loginCard').style.display = 'none';
             const response = await fetch('/auth/check');
             const data = await response.json();
-            if (data.userId === OWNER_ID) {
+            if (OWNER_ID.split(',').includes(data.userId)) {
                 document.getElementById('ownerPanel').style.display = 'block';
                 loadModuleStates();
             }
