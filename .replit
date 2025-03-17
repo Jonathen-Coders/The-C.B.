@@ -23,7 +23,7 @@ localPort = 8080
 externalPort = 8080
 
 [workflows]
-runButton = "Run Bot"
+runButton = "Run Web Server"
 
 [[workflows.workflow]]
 name = "Run Bot"
@@ -33,3 +33,12 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node src/bot.js"
+
+[[workflows.workflow]]
+name = "Run Web Server"
+author = 38471709
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node src/index.js"
