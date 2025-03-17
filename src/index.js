@@ -15,7 +15,7 @@ manager.on('shardCreate', (shard) => {
 });
 
 // Initialize Express server
-const app = require('./server');
+const app = require('../server');
 app.listen(8080, '0.0.0.0', () => {
   console.log('Server running on port 8080');
 });
