@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discord Bot Control Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #2c2f33;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: #23272a;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .online {
+            background-color: #43b581;
+        }
+        .offline {
+            background-color: #f04747;
+        }
+        button {
+            background-color: #7289da;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #677bc4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Discord Bot Control Panel</h1>
+        <div class="card">
+            <h2>Bot Status</h2>
+            <div id="botStatus" class="status">Checking...</div>
+        </div>
+        <div class="card">
+            <h2>Minecraft Server</h2>
+            <div id="mcStatus" class="status">Checking...</div>
+            <button onclick="getMCStatus()">Refresh Status</button>
+        </div>
+    </div>
+    <script>
+        function updateStatus() {
+            fetch('/status')
+                .then(res => res.json())
+                .then(data => {
+                    const statusDiv = document.getElementById('botStatus');
+                    statusDiv.textContent = `Bot is ${data.status} (Uptime: ${Math.floor(data.uptime)}s)`;
+                    statusDiv.className = `status ${data.status === 'online' ? 'online' : 'offline'}`;
+                });
+        }
+
+        function getMCStatus() {
+            fetch('/mc/status')
+                .then(res => res.json())
+                .then(data => {
+                    const statusDiv = document.getElementById('mcStatus');
+                    statusDiv.textContent = data.connected ? 
+                        `Connected to: ${data.serverInfo?.host}:${data.serverInfo?.port}` :
+                        'Not connected';
+                    statusDiv.className = `status ${data.connected ? 'online' : 'offline'}`;
+                });
+        }
+
+        updateStatus();
+        getMCStatus();
+        setInterval(updateStatus, 5000);
+    </script>
+</body>
+</html>
