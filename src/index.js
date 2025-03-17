@@ -5,7 +5,7 @@ require('dotenv').config();
 // Create sharding manager 
 const manager = new ShardingManager('./src/bot.js', {
   token: process.env.TOKEN,
-  totalShards: 2,
+  totalShards: 'auto',
   respawn: true,
 });
 
