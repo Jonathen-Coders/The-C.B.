@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Discord Bot Control Panel</title>
+    <script src="https://replit.com/public/js/replit-auth-v2.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -48,7 +49,38 @@
     <div class="container">
         <h1>Discord Bot Control Panel</h1>
         <div class="card" id="loginCard">
-            <button onclick="window.replit.auth.login()">Login with Replit</button>
+            <button onclick="LoginWithReplit()">Login with Replit</button>
+            <script>
+                function LoginWithReplit() {
+                    window.addEventListener("message", authComplete);
+                    var h = 500;
+                    var w = 350;
+                    var left = screen.width / 2 - w / 2;
+                    var top = screen.height / 2 - h / 2;
+
+                    var authWindow = window.open(
+                        "https://replit.com/auth_with_repl_site?domain=" + location.host,
+                        "_blank",
+                        "modal=yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=" +
+                        w +
+                        ", height=" +
+                        h +
+                        ", top=" +
+                        top +
+                        ", left=" +
+                        left
+                    );
+
+                    function authComplete(e) {
+                        if (e.data !== "auth_complete") {
+                            return;
+                        }
+                        window.removeEventListener("message", authComplete);
+                        authWindow.close();
+                        location.reload();
+                    }
+                }
+            </script>
         </div>
         <div class="card">
             <h2>Bot Status</h2>
