@@ -56,7 +56,73 @@
             <div id="mcStatus" class="status">Checking...</div>
             <button onclick="getMCStatus()">Refresh Status</button>
         </div>
+        <div class="card" id="ownerPanel" style="display: none;">
+            <h2>Owner Controls</h2>
+            <div class="module-controls">
+                <div class="module-item">
+                    <span>Minecraft Integration</span>
+                    <button onclick="toggleModule('minecraft')" id="minecraft-toggle">Loading...</button>
+                </div>
+                <div class="module-item">
+                    <span>Voice Commands</span>
+                    <button onclick="toggleModule('voice')" id="voice-toggle">Loading...</button>
+                </div>
+                <div class="module-item">
+                    <span>Auto Moderation</span>
+                    <button onclick="toggleModule('automod')" id="automod-toggle">Loading...</button>
+                </div>
+            </div>
+        </div>
     </div>
+    <style>
+        .module-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .module-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+    <script>
+        const OWNER_ID = '${process.env.OWNER_ID}';
+        
+        async function checkOwner() {
+            const response = await fetch('/auth/check');
+            const data = await response.json();
+            if (data.userId === OWNER_ID) {
+                document.getElementById('ownerPanel').style.display = 'block';
+                loadModuleStates();
+            }
+        }
+
+        async function loadModuleStates() {
+            const response = await fetch('/modules/status');
+            const modules = await response.json();
+            Object.entries(modules).forEach(([module, enabled]) => {
+                const button = document.getElementById(`${module}-toggle`);
+                if (button) {
+                    button.textContent = enabled ? 'Disable' : 'Enable';
+                    button.className = enabled ? 'online' : 'offline';
+                }
+            });
+        }
+
+        async function toggleModule(moduleName) {
+            const response = await fetch('/modules/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ module: moduleName })
+            });
+            if (response.ok) {
+                loadModuleStates();
+            }
+        }
+
+        checkOwner();
+    </script>
     <script>
         function updateStatus() {
             fetch('/status')
