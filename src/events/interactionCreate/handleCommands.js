@@ -13,18 +13,29 @@ module.exports = async (client, interaction) => {
 
     if (!commandObject) return;
 
-    if (commandObject.devOnly) {
-      if (!devs.includes(interaction.member.id)) {
+    // Handle DM interactions
+    if (!interaction.guild) {
+      if (commandObject.guildOnly) {
+        interaction.reply({
+          content: 'This command can only be used in a server.',
+          ephemeral: true,
+        });
+        return;
+      }
+      // Skip guild-specific permission checks for DMs
+    } else {
+      if (commandObject.devOnly) {
+        if (!devs.includes(interaction.member?.id)) {
         interaction.reply({
           content: 'Only developers are allowed to run this command.',
           ephemeral: true,
         });
         return;
       }
-    }
+      }
 
-    if (commandObject.testOnly) {
-      if (!(interaction.guild.id === testServer)) {
+      if (commandObject.testOnly) {
+        if (!(interaction.guild?.id === testServer)) {
         interaction.reply({
           content: 'This command cannot be ran here.',
           ephemeral: true,
@@ -58,8 +69,21 @@ module.exports = async (client, interaction) => {
       }
     }
 
+    }
+    
     await commandObject.callback(client, interaction);
   } catch (error) {
     console.log(`There was an error running this command: ${error}`);
+    // Notify user of error
+    try {
+      const errorMessage = 'There was an error executing this command. Please try again later.';
+      if (interaction.deferred) {
+        await interaction.editReply({ content: errorMessage });
+      } else {
+        await interaction.reply({ content: errorMessage, ephemeral: true });
+      }
+    } catch (e) {
+      console.error('Error sending error message:', e);
+    }
   }
 };
