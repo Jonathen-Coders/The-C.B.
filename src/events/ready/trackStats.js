@@ -5,7 +5,7 @@ const db = new Database();
 module.exports = (client) => {
   // Track message activity
   client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
+    if (message.author.bot || !message.guild) return;
     
     const key = `stats_messages_${message.guild.id}`;
     const currentCount = await db.get(key) || 0;
@@ -14,7 +14,7 @@ module.exports = (client) => {
 
   // Track command usage
   client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand() || !interaction.guild) return;
     
     const key = `stats_commands_${interaction.guild.id}`;
     const currentCount = await db.get(key) || 0;
