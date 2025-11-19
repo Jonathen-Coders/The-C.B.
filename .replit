@@ -51,3 +51,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node src/index.js"
+
+[agent]
+expertMode = true

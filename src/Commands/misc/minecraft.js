@@ -1,10 +1,10 @@
-
 const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
 const minecraftManager = require("../../utils/minecraftManager");
 const { mainServer } = require("../../../config.json");
 
 module.exports = {
     name: "minecraft",
+    delete: true,
     description: "Connect to and view info about the Minecraft server",
     options: [
         {
@@ -41,7 +41,8 @@ module.exports = {
                     if (minecraftManager.isConnected()) {
                         await interaction.deferReply();
                         try {
-                            const status = await minecraftManager.getServerStatus();
+                            const status =
+                                await minecraftManager.getServerStatus();
 
                             const embed = new EmbedBuilder()
                                 .setTitle("Minecraft Server Status")
@@ -68,7 +69,9 @@ module.exports = {
                             return interaction.editReply({ embeds: [embed] });
                         } catch (statusError) {
                             console.error("Status error:", statusError);
-                            return interaction.editReply("Failed to get server status. The server might be offline.");
+                            return interaction.editReply(
+                                "Failed to get server status. The server might be offline.",
+                            );
                         }
                     } else {
                         return interaction.reply({
@@ -108,7 +111,7 @@ module.exports = {
             }
         } catch (error) {
             console.error("Minecraft command error:", error);
-            
+
             // Handle the error differently depending on whether we've deferred the reply
             if (interaction.deferred) {
                 return interaction.editReply({
