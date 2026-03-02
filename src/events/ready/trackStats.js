@@ -1,31 +1,34 @@
-
-const Database = require('@replit/database');
-const db = new Database();
+const { incrementStat, setStat } = require('../../utils/mysql');
 
 module.exports = (client) => {
   // Track message activity
   client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.guild) return;
-    
-    const key = `stats_messages_${message.guild.id}`;
-    const currentCount = await db.get(key) || 0;
-    await db.set(key, currentCount + 1);
+    try {
+      await incrementStat(message.guild.id, 'messages');
+    } catch (err) {
+      console.error('[trackStats] Failed to track message:', err.message);
+    }
   });
 
   // Track command usage
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand() || !interaction.guild) return;
-    
-    const key = `stats_commands_${interaction.guild.id}`;
-    const currentCount = await db.get(key) || 0;
-    await db.set(key, currentCount + 1);
+    try {
+      await incrementStat(interaction.guild.id, 'commands');
+    } catch (err) {
+      console.error('[trackStats] Failed to track command:', err.message);
+    }
   });
 
   // Update member counts every 5 minutes
   setInterval(async () => {
-    client.guilds.cache.forEach(async (guild) => {
-      const key = `stats_members_${guild.id}`;
-      await db.set(key, guild.memberCount);
-    });
+    for (const guild of client.guilds.cache.values()) {
+      try {
+        await setStat(guild.id, 'members', guild.memberCount);
+      } catch (err) {
+        console.error(`[trackStats] Failed to update member count for ${guild.id}:`, err.message);
+      }
+    }
   }, 5 * 60 * 1000);
 };

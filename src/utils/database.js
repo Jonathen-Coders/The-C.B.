@@ -1,48 +1,47 @@
-
-const { db } = require('replit');
+const { dbGet, dbSet, dbDelete, dbList } = require('./mysql');
 
 class Database {
   // Server settings
   static async getServerSettings(guildId) {
     const key = `settings_${guildId}`;
-    return await db.get(key) || {};
+    return await dbGet(key) || {};
   }
 
   static async setServerSettings(guildId, settings) {
     const key = `settings_${guildId}`;
-    await db.set(key, settings);
+    await dbSet(key, settings);
   }
 
   // Command management
   static async getDisabledCommands(guildId) {
     const key = `commands_disabled_${guildId}`;
-    return await db.get(key) || [];
+    return await dbGet(key) || [];
   }
 
   static async setDisabledCommands(guildId, commands) {
     const key = `commands_disabled_${guildId}`;
-    await db.set(key, commands);
+    await dbSet(key, commands);
   }
 
   // User data
   static async getUserData(guildId, userId) {
     const key = `user_${guildId}_${userId}`;
-    return await db.get(key) || { balance: 0, lastDaily: null };
+    return await dbGet(key) || { balance: 0, lastDaily: null };
   }
 
   static async setUserData(guildId, userId, data) {
     const key = `user_${guildId}_${userId}`;
-    await db.set(key, data);
+    await dbSet(key, data);
   }
 
   // List all keys with a prefix
   static async listKeys(prefix) {
-    return await db.list(prefix);
+    return await dbList(prefix);
   }
 
   // Delete a key
   static async deleteKey(key) {
-    await db.delete(key);
+    await dbDelete(key);
   }
 }
 
