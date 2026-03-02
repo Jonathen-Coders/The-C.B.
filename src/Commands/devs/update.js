@@ -2,47 +2,55 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
-  name: 'broadcast',
-  description: 'Send a message to all servers in a dedicated channel that is made',
+  name: 'update',
+  description: 'Broadcast an update announcement to all servers',
   devOnly: true,
   options: [
     {
-      name: 'message',
-      description: 'The message to broadcast',
+      name: 'version',
+      description: 'Version number of the update',
       type: ApplicationCommandOptionType.String,
       required: true,
     },
+    {
+      name: 'description',
+      description: 'Description of the update changes',
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    }
   ],
 
   callback: async (client, interaction) => {
     await interaction.deferReply({ ephemeral: true });
     
-    const message = interaction.options.getString('message');
+    const version = interaction.options.getString('version');
+    const description = interaction.options.getString('description');
     let successCount = 0;
     let failCount = 0;
+
+    const updateMessage = `🔄 **Bot Update v${version}**\n\n${description}\n\n*This is an automated update announcement.*`;
 
     for (const guild of client.guilds.cache.values()) {
       try {
         let channel = guild.channels.cache.find(ch => 
-          ch.name === 'bot-announcements' && 
+          ch.name === 'bot-updates' && 
           ch.type === 0
         );
 
-        // Create the channel if it doesn't exist
         if (!channel) {
           try {
             channel = await guild.channels.create({
-              name: 'bot-announcements',
-              type: 0, // Text channel
-              topic: 'Official announcements from the bot',
+              name: 'bot-updates',
+              type: 0,
+              topic: 'Official bot update announcements',
               permissionOverwrites: [
                 {
-                  id: guild.id, // @everyone role
+                  id: guild.id,
                   allow: ['ViewChannel'],
                   deny: ['SendMessages']
                 },
                 {
-                  id: client.user.id, // Bot's ID
+                  id: client.user.id,
                   allow: ['ViewChannel', 'SendMessages']
                 }
               ]
@@ -55,7 +63,7 @@ module.exports = {
         }
 
         if (channel) {
-          await channel.send(message);
+          await channel.send(updateMessage);
           successCount++;
         } else {
           failCount++;
@@ -67,7 +75,7 @@ module.exports = {
     }
 
     await interaction.editReply(
-      `Broadcast complete!\nSuccessfully sent to: ${successCount} servers\nFailed to send to: ${failCount} servers`
+      `Update announcement complete!\nSuccessfully sent to: ${successCount} servers\nFailed to send to: ${failCount} servers`
     );
   },
 };

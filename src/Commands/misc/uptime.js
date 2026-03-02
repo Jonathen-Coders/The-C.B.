@@ -11,48 +11,54 @@ module.exports = {
     
     const prettyMs = await import('pretty-ms');
     const uptime = prettyMs.default(client.uptime, { verbose: true });
-    
-    const row = new ActionRowBuilder()
-      .addComponents(
-        new ButtonBuilder()
-          .setCustomId('restart_bot')
-          .setLabel('Restart & Redeploy')
-          .setStyle(ButtonStyle.Danger)
-      );
 
-    await interaction.editReply({
-      content: `🤖 Bot has been online for: ${uptime}`,
-      components: [row]
-    });
+    // Only add the restart button if not in DMs
+    if (interaction.guild) {
+      const row = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('restart_bot')
+            .setLabel('Restart & Redeploy')
+            .setStyle(ButtonStyle.Danger)
+        );
 
-    const collector = interaction.channel.createMessageComponentCollector({
-      time: 15000
-    });
+      await interaction.editReply({
+        content: `🤖 Bot has been online for: ${uptime}`,
+        components: [row]
+      });
 
-    collector.on('collect', async (i) => {
-      if (i.customId === 'restart_bot') {
-        if (!i.member.permissions.has('Administrator')) {
-          await i.reply({ content: 'You do not have permission to restart the bot.', ephemeral: true });
-          return;
-        }
+      const collector = interaction.channel.createMessageComponentCollector({
+        time: 15000
+      });
 
-        await i.reply({ content: '⚠️ Restarting bot and redeploying...', ephemeral: true });
-        
-        // Register any new commands
-        exec('node src/events/ready/01registerCommands.js', async (error) => {
-          if (error) {
-            console.error('Error registering commands:', error);
+      collector.on('collect', async (i) => {
+        if (i.customId === 'restart_bot') {
+          if (!i.member.permissions.has('Administrator')) {
+            await i.reply({ content: 'You do not have permission to restart the bot.', ephemeral: true });
             return;
           }
+
+          await i.reply({ content: '⚠️ Restarting bot and redeploying...', ephemeral: true });
           
-          // Restart the bot
-          setTimeout(async () => {
-            await client.destroy();
-            await client.login(process.env.TOKEN);
-            await i.editReply('✅ Bot has been restarted and commands redeployed!');
-          }, 5000);
-        });
-      }
-    });
+          exec('node src/events/ready/01registerCommands.js', async (error) => {
+            if (error) {
+              console.error('Error registering commands:', error);
+              return;
+            }
+            
+            setTimeout(async () => {
+              await client.destroy();
+              await client.login(process.env.TOKEN);
+              await i.editReply('✅ Bot has been restarted and commands redeployed!');
+            }, 5000);
+          });
+        }
+      });
+    } else {
+      // Simple response for DMs without the restart button
+      await interaction.editReply({
+        content: `🤖 Bot has been online for: ${uptime}`
+      });
+    }
   },
 };
